@@ -1,65 +1,90 @@
-# Token Rush · 多卡实验
+# Token Rush · Multi-GPU Experiments
 
-**在 2 张 5090 上（对照台 2 × A100 SXM 三小时），把单卡那套"一步一步量"的方法重跑一遍。**
+**The single-card method, applied one level up: on two RTX 5090s, with a
+2 × A100 SXM rig as the comparison for three hours.**
 
-这不是一个引擎仓库，也不是一份"多卡方案"，而是一条**实验阶梯**：从一条点对点消息的
-延迟开始，一级一级量到 Qwen3.8-27B 的 TP=2；每一级只改一个变量，写清楚
-"基线 → 优化 → 数字 → 瓶颈 → 下一步"。目标是把多卡的判断力长出来，而不是背结论。
+This is neither an engine repository nor a proposal for "a multi-GPU solution".
+It is an **experimental ladder**. It begins with the latency of one point-to-point
+message and climbs, one stage at a time, to TP=2 on Qwen3.8-27B. Each stage
+changes a single variable and records the same five entries: baseline,
+optimization, number, bottleneck, next step. The purpose is to develop judgement
+about multi-GPU inference rather than to collect conclusions.
 
-> **状态：计划阶段。零行代码，零个测量值。** 第一级 S1 出数之后，这里会有第一张表。
+> **Status: planning. No code and no measurements.** The first table will appear
+> here once S1 produces a number.
 
-## 两份文档
+## Documents
 
-| 文档 | 回答什么 |
+| Document | Question it answers |
 |---|---|
-| [docs/multigpu-lab.zh-CN.md](docs/multigpu-lab.zh-CN.md) | **怎么学会**：十一级台阶、每级先写下的预测与过关线、"瓶颈 → 下一步"决策表、日志模板 |
-| [docs/multigpu.md](docs/multigpu.md) | **值不值得做、怎么做、怎么报**：单流多卡是 1.5x 而不是 2x 的账、10 KB all-reduce 为什么是全部、TP/PP/DP 的取舍、杀掉条件 |
+| [docs/multigpu-lab.md](docs/multigpu-lab.md) | **How to learn it.** Eleven stages, each with a prediction and a pass criterion written down in advance; the bottleneck → next-step decision table; the log template. |
+| [docs/multigpu.md](docs/multigpu.md) | **Whether it is worth doing, how to do it, and how to report it.** The accounting that makes a second card 1.5× rather than 2×, why a 10 KB all-reduce is the whole problem, the TP/PP/DP trade-offs, and the kill criteria. |
 
-## 阶梯
+## Provenance
 
-| 级 | 基线 → 优化 | 过关线 |
+The idea tested here originates in
+[`zyhector/token-rush`](https://github.com/zyhector/token-rush). That project
+established the thesis this repository extends: at batch size 1 the cost of a
+second card is a serial chain of small collectives, so the card is worth 1.5×,
+not 2×. It also established the measurement discipline used throughout this
+repository — write the prediction before the measurement, report the fraction of
+the roofline wall, account for bytes, and capture the step in a graph — and
+produced every single-card figure quoted here.
+
+The multi-GPU plan, the eleven-stage ladder, and all multi-GPU numbers are
+original to this repository. **No multi-GPU number here has been measured.** Each
+is a projection and is labelled as one. This repository is an independent
+personal experiment; it is not an official token-rush project and carries no
+endorsement from it.
+
+When citing the single-card results (100.9 tok/s, 81.0% of wall, 228 / 357 / 378
+tok/s, 224 s for the 256k prefill), cite token-rush, Phase 4, 2026-09-09/10. When
+citing the multi-GPU plan, cite this repository as an unaffiliated extension.
+
+Paths such as `docs/environment.md`, `docs/progress.md`, `docs/traps.md` and
+`docs/baselines.md` refer to the upstream repository, with the exception of the
+two documents listed above.
+
+## Ladder
+
+| Stage | Baseline → optimization | Pass criterion |
 |---|---|---|
-| S1 | 单次 copy → 图内 + P2P 开关 | L(10 KB) ≤ 15 µs |
-| S2 | NCCL all-reduce → 自写 one-shot | 10 KB 时快 2x |
-| S3 | 单卡一层线性 → 切 N / 切 K | 能预测翻转点 |
-| S4 | eager 64 层 → 双卡图捕获 | 比 eager 快 ≥ 3x |
-| S5 | 1 层 → 64 层 + AR 融进 norm | comm share ≤ 25% |
-| S6 | 单卡老鼠 → TP=2 整机 | ≥ 1.4x |
-| S7 | TP → PP / DP / PP+TP | 每格一句话解释 |
-| S7+ | 稠密 → MoE / EP（可选） | 说清 bs=1 为什么 EP 不划算 |
-| S8 | 串行 AR → micro-batch 重叠 | 藏掉 ≥ 30% 通信 |
-| S9 | TP prefill → ring / 序列并行 | 比 TP 快 ≥ 20% |
-| S10 | 老鼠 → 27B 真身 | 与投影差 ≤ 10% |
-| S11 | 一堆表 → 决策备忘 | 能讲清取舍 |
+| S1 | single copy → in-graph + P2P enabled | L(10 KB) ≤ 15 µs |
+| S2 | NCCL all-reduce → hand-written one-shot | 2× faster at 10 KB |
+| S3 | single-card linear layer → split N / split K | predict the crossover |
+| S4 | eager 64-layer chain → two-card graph capture | ≥ 3× faster than eager |
+| S5 | 1 layer → 64 layers, all-reduce fused into the norm | comm share ≤ 25% |
+| S6 | single-card test model → TP=2 full model | ≥ 1.4× |
+| S7 | TP → PP / DP / PP+TP | one sentence per cell |
+| S7+ | dense → MoE / EP (optional) | explain why EP loses at bs=1 |
+| S8 | serial all-reduce → micro-batch overlap | hide ≥ 30% of communication |
+| S9 | TP prefill → ring / sequence parallel | ≥ 20% faster than TP |
+| S10 | test model → 27B production model | within 10% of projection |
+| S11 | a pile of tables → decision memo | defend the trade-offs |
 
-## 会产出什么
+## Outputs
 
-- 一张**并行策略 × batch** 的地图（每一格：tok/s、通信占比、一句话解释）；
-- 一份带**"预测 vs 实测"**的实验日志（预测写在跑之前，对错本身是结果）；
-- 一句能脱口而出的话：
+- A **parallelism × batch map**: for every cell, tok/s, communication share, and
+  one sentence of explanation.
+- An experimental log carrying **prediction versus measurement**, with the
+  prediction written before the run. A wrong prediction is a result.
+- One sentence that can be delivered without notes:
 
-  > 2 × 5090 上 27B@4.25bpw 单流 TP=2 是 1.5x，不是 2x：128 次 10 KB 的
-  > all-reduce 值 0.77 ms，而半步只有 4.2 ms。
+  > On two 5090s, 27B at 4.25 bpw in a single stream at TP=2 is 1.5×, not 2×:
+  > 128 all-reduces of 10 KB cost 0.77 ms against a 4.2 ms half-step.
 
-## 与上游的关系
+## Conventions
 
-引擎、权重、单卡 Phase 0–5 的全部测量在 [zyhector/token-rush](https://github.com/zyhector/token-rush)，
-发布的 int4 权重在 [Hugging Face](https://huggingface.co/zyhector/Qwen3.8-27B-TokenRush-int4g128)。
-**本仓库是它的个人多卡实验，非上游官方**，只做多卡这一件事：引用的单卡数字
-（100.9 tok/s、81.0% of wall、228/357/378、256k 预填 224 s）全部来自那边的 Phase 4 报告；
-**这里出现的多卡数字在测出来之前都是投影**，文中标了 projected。
-
-文档里形如 `docs/environment.md`、`docs/progress.md` 的路径，除本仓库这两份外，都指上游仓库。
-
-## 约定
-
-- 每个数带机器、日期、版本；对手的复现配方留在上游，不在这里。
-- 预测先写，再跑；预测错了要写明错在哪。
-- 测不出来的东西不写进结论。
-- 代码写在租的机器上（`/workspace/lab/`），每级跑完把 `LOG.md` 和结果拷回来——
-  实例一销毁就都没了。
+- Every number carries machine, date and version. Rival reproduction recipes stay
+  upstream; they are not duplicated here.
+- Write the prediction first, then run. If the prediction is wrong, state where
+  it was wrong.
+- Nothing that cannot be measured enters the conclusions.
+- Code runs on rented machines (`/workspace/lab/`). After each stage, copy
+  `LOG.md`, the stage code and the raw results back; destroying the instance destroys everything
+  on it.
 
 ## License
 
-沿用上游：暂未附许可证。文中引用的上游测量数字请注明出处
-（zyhector/token-rush，Phase 4，2026-09-09/10）。
+As with upstream, no license is attached yet. Cite the upstream measurements
+referenced in the text (zyhector/token-rush, Phase 4, 2026-09-09/10).

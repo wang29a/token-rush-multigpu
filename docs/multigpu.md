@@ -5,8 +5,16 @@ single-card engine is closed (phases 0–5, `docs/progress.md` step 35). This is
 the plan for testing the same thesis one level up, and it is written to be
 killed by its first week: the whole outcome is one number — the latency of a
 10 KB all-reduce between two 5090s — measured before any engine work starts.
-The learn-it-yourself ladder that produces that number is
-`docs/multigpu-lab.zh-CN.md` (S1–S11; its S1 + S2 + S4 are this file's M0).
+The self-study ladder that produces that number is
+`docs/multigpu-lab.md` (S1–S11; its S1 + S2 + S4 are this file's M0).
+
+**Provenance.** This plan extends the single-card work of
+[`zyhector/token-rush`](https://github.com/zyhector/token-rush). The thesis it
+tests, the measurement method, and every single-card result quoted here are that
+project's; the multi-GPU plan and all of its projections are this repository's,
+an unaffiliated personal experiment. Paths such as `docs/progress.md`,
+`docs/environment.md`, `docs/traps.md` and `docs/baselines.md` refer to the
+upstream repository.
 
 ## What a second card can buy
 
