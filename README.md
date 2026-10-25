@@ -88,3 +88,5 @@ two documents listed above.
 
 As with upstream, no license is attached yet. Cite the upstream measurements
 referenced in the text (zyhector/token-rush, Phase 4, 2026-09-09/10).
+
+[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
