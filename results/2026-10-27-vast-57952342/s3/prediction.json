@@ -1,0 +1,74 @@
+{
+  "written_at_utc": "2026-10-27T12:07:42.412307+00:00",
+  "stage": "S4/M0 capture probe: 64-layer shard-shaped chain",
+  "basis": "S2-sync measured 10 KiB same-stream all-reduce 8.32/8.39 us per step; S1 link and S2 collectives same box. Per-layer GEMV byte cost estimated from 8704x5120 bf16 = 89.1 MB at the box's 1701 GB/s wall, i.e. an ESTIMATE, not measured throughput.",
+  "question": "Does a 64-layer chain of real-shaped GEMV + 10 KiB all-reduce + RMSNorm capture in one graph per card, replay correctly, and reproduce the sum of its separately measured parts?",
+  "shapes": {
+    "toy": {
+      "layers": 64,
+      "hidden": 512,
+      "n": 512
+    },
+    "shard": {
+      "layers": 64,
+      "hidden": 5120,
+      "n": 8704
+    }
+  },
+  "dtype": "bfloat16",
+  "collective_bytes": 10240,
+  "predictions": {
+    "shard": {
+      "graph_chain_us_per_layer": [
+        55,
+        75
+      ],
+      "graph_compute_us_per_layer": [
+        47,
+        67
+      ],
+      "graph_comm_us_per_layer": [
+        8.3,
+        8.7
+      ],
+      "eager_over_graph": [
+        1.0,
+        1.5
+      ],
+      "comm_share_percent": [
+        11,
+        16
+      ]
+    },
+    "toy": {
+      "graph_chain_us_per_layer": [
+        8,
+        12
+      ],
+      "graph_compute_us_per_layer": [
+        0.5,
+        2.0
+      ],
+      "graph_comm_us_per_layer": [
+        8.3,
+        8.7
+      ],
+      "eager_over_graph": [
+        1.5,
+        3.5
+      ],
+      "comm_share_percent": [
+        70,
+        95
+      ]
+    }
+  },
+  "additivity_residual_percent_max": 10,
+  "correctness": "Identical weights and inputs on both ranks, so the SUM all-reduce is an exact doubling. Two independent checks: (1) a graph replay is compared against a no-collective reference chain that substitutes the exact factor 2, requiring bit equality and recording max abs difference; (2) the comm-only chain starts at pattern*2^-64 and must end exactly at pattern after 64 doublings.",
+  "criteria": {
+    "S4_graphs_3x_eager": "toy chain only; expected to be at risk because the 10 KiB collective is a large share of per-layer GPU time",
+    "S5_comm_share_le_25_percent_at_64_layers": "shard chain",
+    "M0_projection_reproduction": "shard chain per-pass time versus measured compute-only plus comm-only"
+  },
+  "scope": "bf16 weights, not the production int4 Marlin kernel; no model, no attention, no KV cache. Native same-stream NCCL only; ProcessGroup parity was established in S2-sync at the collective level. Two complete runs, forward and reverse variant order, then decide once."
+}

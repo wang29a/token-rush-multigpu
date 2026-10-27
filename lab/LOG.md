@@ -482,9 +482,12 @@ S2 numbers themselves stand unchanged.
 **Next step:** one bounded synthetic M0 chain - per layer, a GEMV-shaped
 compute block, the 10 KiB all-reduce and an RMSNorm-shaped block, captured with
 the consumer-style dependency - with a new numeric prediction written before
-the run. If that chain also stays at or below 12 us per layer, Mode A earns a
-model implementation; if not, the fallback is Mode B, not more cards. No model
-work and no 1.5x claim before that measurement.
+the run. The 12 us gate applies to L, the collective, not to a whole layer. The
+chain's check is whether capture holds at 64 layers and whether the measured
+step reproduces the component model (measured per-layer compute plus measured
+communication) within a stated tolerance. If it does, Mode A earns a model
+implementation; if not, the fallback is Mode B, not more cards. No model work
+and no 1.5x claim before that measurement.
 
 **Reproduction:**
 
@@ -499,3 +502,14 @@ and correctness flags, `status.jsonl` records clean exit, and the DOT dumps are
 the graph-structure evidence. The generator verifies code hashes against the
 recorded commit, row and sample counts, medians, correctness flags, and that
 both runs produce identical capture structure.
+
+
+## S3/S4 — 64-layer shard chain (2026-10-27, vast-57952342)
+
+**Question:** Does a 64-layer chain of real-shaped GEMV + 10 KiB all-reduce + RMSNorm capture in one graph per card and reproduce compute plus communication?
+
+**Prediction (written before the run):** shard shape 55–75 us/layer for the chain, 47–67 compute-only, 8.3–8.7 comm-only, eager 1.0–1.5x graph, communication share 11–16%. Toy shape 8–12 us/layer and eager 1.5–3.5x graph, with S4's >=3x criterion at risk because the collective dominates that shape. Additivity residual <=10%; exact correctness both shapes. Preserved in `results/2026-10-27-vast-57952342/s3/prediction.json`.
+
+**Measured / bottleneck / prediction vs result:** Pending.
+
+**Next step:** two runs (forward, reverse); evaluate S4 capture, S5 communication share and the component-model reproduction. No model work follows from a passing capture probe alone.
