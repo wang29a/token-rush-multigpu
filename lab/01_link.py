@@ -99,8 +99,13 @@ def copy_worker(args):
             graph = torch.cuda.CUDAGraph()
             with torch.cuda.device(args.src):
                 with torch.cuda.graph(graph, stream=streams[args.src]):
+                    # Fork the peer stream from the capture origin BEFORE
+                    # copy_ inserts its bidirectional event dependencies.
+                    # Otherwise its first event refers to uncaptured work.
+                    streams[1-args.src].wait_stream(streams[args.src])
                     for _ in range(unroll):
                         op()
+                    streams[args.src].wait_stream(streams[1-args.src])
             for _ in range(args.warmup):
                 graph.replay()
             sync(torch)
@@ -143,7 +148,8 @@ def nccl_worker(rank, args):
     torch.cuda.set_device(rank)
     out = Path(args.output)
     dist.init_process_group("nccl", init_method=(out / "rendezvous").as_uri(),
-                            rank=rank, world_size=2, timeout=timedelta(seconds=45))
+                            rank=rank, world_size=2, timeout=timedelta(seconds=45),
+                            device_id=torch.device(f"cuda:{rank}"))
     stream = torch.cuda.Stream()
     torch.cuda.set_stream(stream)
     for src in (0, 1):

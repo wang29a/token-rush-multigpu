@@ -1,0 +1,7 @@
+{
+  "written_at_utc": "2026-10-27T11:18:50.180269+00:00",
+  "observed_run": "run1",
+  "cause": "copy_ graph capture failed with capture isolation: peer stream was not enrolled before its first event",
+  "prediction": "Explicit fork/join of the remote stream will eliminate capture-isolation errors. Graph copy may then work even when peer access is false; predict 5\u201315 us per one-way 10 KiB transfer, 10\u201330 us round trip; no inference about all-reduce.",
+  "preserved": "run1 keeps the failed capture and original code commit. Original S1 predictions remain unchanged."
+}
