@@ -10,10 +10,12 @@ changes a single variable and records the same five entries: baseline,
 optimization, number, bottleneck, next step. The purpose is to develop judgement
 about multi-GPU inference rather than to collect conclusions.
 
-> **Status: S1 and S2 NCCL baseline measured, 2026-10-27.** P2P is
-> unavailable on this box. The isolated all-reduce meets the component latency
-> threshold, but the 128-operation graph exceeds the budget. Full S2's one-shot
-> comparison is unevaluated; M0 remains uncleared. No model performance is measured.
+> **Status: link, collective and capture-structure probes measured, 2026-10-27.**
+> P2P is unavailable on this box. The isolated all-reduce meets the component
+> threshold; the earlier 128-operation chain miss is attributed to capture-time
+> graph structure, not transport. A dependent chain with a per-step consumer
+> stays under 12 us, but M0 remains uncleared: no synthetic
+> GEMV/collective/norm chain exists yet. No model performance is measured.
 
 <!-- S1_RESULTS_START -->
 
@@ -52,10 +54,33 @@ Code `69cfc23`. BF16 SUM, nine samples; max rank per sample.
 
 The isolated primitive meets 12 us; all tested dependent-chain profiles miss
 that budget. **M0 remains uncleared; full S2 one-shot comparison is unevaluated.**
-Stop model implementation on this NCCL path pending an explanation of the chain cost.
+The chain cost was later attributed to capture-time graph structure, not transport;
+see the S2-sync block below.
 [S2 report](results/2026-10-27-vast-57952342/s2/S2.md) · [Full data](results/2026-10-27-vast-57952342/s2/matrix.csv).
 
 <!-- S2_RESULTS_END -->
+
+<!-- S2_SYNC_RESULTS_START -->
+
+S2-sync cause probe measured on 2026-10-27, same 2 x RTX 5090 box.
+Code `4041b1c`. BF16 SUM, nine samples; max rank per sample.
+
+| 10 KiB, depth 128 | us/step |
+|---|---:|
+| wait-each capture (the S2 structure) | 14.305 |
+| tail-wait, communication only | 8.422 |
+| same-stream NCCL, communication only | 8.355 |
+| same-stream plus a per-step consumer | 10.228 |
+| ProcessGroup plus the same consumer | 10.255 |
+
+The S2 chain cost was a capture-time dependency artifact: the wait-each graph
+had 8384 edges against 383 for tail-wait, growing
+with depth. A dependent chain with a real consumer stays near 10.2 us and is flat
+in depth, so the 'stop this NCCL path' decision was withdrawn. **M0 is still
+uncleared**: no synthetic GEMV/collective/norm chain exists yet.
+[S2-sync report](results/2026-10-27-vast-57952342/s2-sync/S2-sync.md) · [Full data](results/2026-10-27-vast-57952342/s2-sync/matrix.csv).
+
+<!-- S2_SYNC_RESULTS_END -->
 
 ## Documents
 

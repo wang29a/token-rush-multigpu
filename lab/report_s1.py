@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import statistics
 import subprocess
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -261,7 +262,8 @@ The script uses PyTorch operations and no architecture-specific kernel.
     log=ROOT/"lab/LOG.md"
     existing=log.read_text() if log.exists() else ""
     later="\n\n## S2 —"+existing.split("## S2 —",1)[1] if "## S2 —" in existing else ""
-    log.write_text("# Multi-GPU experiment log\n\n"+body.replace("# S1 —", "## S1 —",1)+later)
+    text="# Multi-GPU experiment log\n\n"+body.replace("# S1 —", "## S1 —",1)+later
+    log.write_text(re.sub(r"\n{3,}","\n\n",text))
     index = ["Measured on 2026-10-27, vast-57952342, 2 x RTX 5090; primary run3.",
              f"Code `{summary['code_commit'][:7]}`; seven samples per cell. Both GPUs",
              "have Gen5 x16 links; runtime peer access is false in both directions.",

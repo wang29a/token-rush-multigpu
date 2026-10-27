@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import statistics
 import subprocess
+import re
 
 ROOT=Path(__file__).resolve().parents[1]
 RUNS=("default1","default2","ring-ll1","tree-ll1","ring-simple1")
@@ -208,6 +209,14 @@ do not jump to S3–S10 on this result. If the M0 gate cannot be met, the agreed
 fallback remains Mode B, not adding cards. No claim that all possible
 implementations or hardware are disproved is supported by these measurements.
 
+**Superseded in part (2026-10-27):** the recorded cause probe in `s2-sync/`
+attributed the 128-operation chain cost to capture-time graph structure, not
+transport. The same operations with a per-step consumer cost less and do not
+grow with depth, while the wait-each capture carried a far denser dependency
+graph than the other variants. The stop decision above is therefore withdrawn;
+the S2 numbers themselves stand unchanged. Read `s2-sync/S2-sync.md` and the
+following log section. M0 was not cleared by that probe either.
+
 **Reproduction:** use the S1 requirements lock, then:
 
 ```bash
@@ -231,7 +240,10 @@ References: [PyTorch collectives](https://docs.pytorch.org/docs/2.11/distributed
     log=ROOT/"lab/LOG.md"
     old=log.read_text()
     marker="## S2 —"
-    log.write_text(old.split(marker,1)[0].rstrip()+"\n\n"+body)
+    later=""
+    if "## S2-sync —" in old:later="\n\n## S2-sync —"+old.split("## S2-sync —",1)[1]
+    text=old.split(marker,1)[0].rstrip()+"\n\n"+body+later
+    log.write_text(re.sub(r"\n{3,}","\n\n",text))
     index=["S2 NCCL baseline measured on 2026-10-27, same 2 x RTX 5090 box.",
            f"Code `{summary['code_commit'][:7]}`. BF16 SUM, nine samples; max rank per sample.","",
            "| default all-reduce component | 10 KiB | 80 KiB |",
@@ -242,7 +254,8 @@ References: [PyTorch collectives](https://docs.pytorch.org/docs/2.11/distributed
            f"| 128-operation graph (ms/128) | {chain_ms:.3f} | {chain80*128/1000:.3f} |","",
            "The isolated primitive meets 12 us; all tested dependent-chain profiles miss",
            "that budget. **M0 remains uncleared; full S2 one-shot comparison is unevaluated.**",
-           "Stop model implementation on this NCCL path pending an explanation of the chain cost.",
+           "The chain cost was later attributed to capture-time graph structure, not transport;",
+           "see the S2-sync block below.",
            f"[S2 report]({base.relative_to(ROOT)}/S2.md) · [Full data]({base.relative_to(ROOT)}/matrix.csv)."]
     readme=ROOT/"README.md";text=readme.read_text()
     start,end="<!-- S2_RESULTS_START -->","<!-- S2_RESULTS_END -->"

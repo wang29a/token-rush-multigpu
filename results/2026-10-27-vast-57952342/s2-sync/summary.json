@@ -1,0 +1,372 @@
+{
+  "label": "measured components; every model number below is projected",
+  "code_commit": "4041b1c76cef18dcc7268834a6d56e5fde88443c",
+  "script_sha256": "8f29bc0c131ebaedbe580ed1e859e83d955f1fc3252c3210cab2c22d73565617",
+  "runs": {
+    "run4": {
+      "finished_utc": "2026-10-27T11:59:31.291970+00:00",
+      "variants": [
+        "wait_each",
+        "wait_tail",
+        "same_stream",
+        "wait_each_consumer",
+        "same_stream_consumer",
+        "local_consumer"
+      ],
+      "reversed_order": false
+    },
+    "run5": {
+      "finished_utc": "2026-10-27T11:59:53.868454+00:00",
+      "variants": [
+        "local_consumer",
+        "same_stream_consumer",
+        "wait_each_consumer",
+        "same_stream",
+        "wait_tail",
+        "wait_each"
+      ],
+      "reversed_order": true
+    }
+  },
+  "depth128_us": {
+    "run4": {
+      "wait_each": {
+        "10240": 14.317649602890015,
+        "81920": 18.398749828338623
+      },
+      "wait_tail": {
+        "10240": 8.483850210905075,
+        "81920": 12.312749773263931
+      },
+      "same_stream": {
+        "10240": 8.322550356388092,
+        "81920": 12.328749895095825
+      },
+      "wait_each_consumer": {
+        "10240": 10.25559976696968,
+        "81920": 14.348700642585754
+      },
+      "same_stream_consumer": {
+        "10240": 10.219450294971466,
+        "81920": 14.181649684906006
+      },
+      "local_consumer": {
+        "10240": 0.7573999930173159,
+        "81920": 0.7898000068962574
+      }
+    },
+    "run5": {
+      "wait_each": {
+        "10240": 14.292450249195099,
+        "81920": 18.376700580120087
+      },
+      "wait_tail": {
+        "10240": 8.360549807548523,
+        "81920": 12.320350110530853
+      },
+      "same_stream": {
+        "10240": 8.386950194835663,
+        "81920": 12.325850129127502
+      },
+      "wait_each_consumer": {
+        "10240": 10.253900289535522,
+        "81920": 14.349199831485748
+      },
+      "same_stream_consumer": {
+        "10240": 10.235650092363358,
+        "81920": 14.112100005149841
+      },
+      "local_consumer": {
+        "10240": 0.7569999899715185,
+        "81920": 0.7883500307798386
+      }
+    }
+  },
+  "depth_scaling_10KiB_us": {
+    "run4": {
+      "wait_each": {
+        "1": 9.703360199928284,
+        "8": 8.967749774456024,
+        "32": 9.760399907827377,
+        "128": 14.317649602890015
+      },
+      "wait_tail": {
+        "1": 9.42848026752472,
+        "8": 8.652499876916409,
+        "32": 8.529599756002426,
+        "128": 8.483850210905075
+      },
+      "same_stream": {
+        "1": 9.104639887809753,
+        "8": 8.278249762952328,
+        "32": 8.621600270271301,
+        "128": 8.322550356388092
+      },
+      "wait_each_consumer": {
+        "1": 10.291520357131958,
+        "8": 10.313499718904495,
+        "32": 10.27280017733574,
+        "128": 10.25559976696968
+      },
+      "same_stream_consumer": {
+        "1": 10.303360223770142,
+        "8": 10.286250151693821,
+        "32": 10.246200114488602,
+        "128": 10.219450294971466
+      },
+      "local_consumer": {
+        "1": 2.1135999262332916,
+        "8": 1.0465000523254275,
+        "32": 0.7981999777257442,
+        "128": 0.7573999930173159
+      }
+    },
+    "run5": {
+      "wait_each": {
+        "1": 9.69760000705719,
+        "8": 8.276250213384628,
+        "32": 10.124199837446213,
+        "128": 14.292450249195099
+      },
+      "wait_tail": {
+        "1": 9.403200149536133,
+        "8": 8.305500261485577,
+        "32": 8.400200307369232,
+        "128": 8.360549807548523
+      },
+      "same_stream": {
+        "1": 9.127039909362793,
+        "8": 8.770249783992767,
+        "32": 8.656000345945358,
+        "128": 8.386950194835663
+      },
+      "wait_each_consumer": {
+        "1": 10.293760299682617,
+        "8": 10.293999686837196,
+        "32": 10.31000018119812,
+        "128": 10.253900289535522
+      },
+      "same_stream_consumer": {
+        "1": 10.681920051574707,
+        "8": 10.2762496098876,
+        "32": 10.29060035943985,
+        "128": 10.235650092363358
+      },
+      "local_consumer": {
+        "1": 2.268480062484741,
+        "8": 1.0487500112503767,
+        "32": 0.7965999655425549,
+        "128": 0.7569999899715185
+      }
+    }
+  },
+  "graph_structure": {
+    "wait_each": {
+      "nodes": 258,
+      "edges": 8384,
+      "distinct_events": 1
+    },
+    "wait_tail": {
+      "nodes": 258,
+      "edges": 383,
+      "distinct_events": 1
+    },
+    "same_stream": {
+      "nodes": 258,
+      "edges": 383,
+      "distinct_events": 1
+    },
+    "wait_each_consumer": {
+      "nodes": 386,
+      "edges": 765,
+      "distinct_events": 1
+    },
+    "same_stream_consumer": {
+      "nodes": 386,
+      "edges": 511,
+      "distinct_events": 1
+    },
+    "local_consumer": {
+      "nodes": 129,
+      "edges": 127,
+      "distinct_events": 0
+    }
+  },
+  "depth128_growth_vs_depth1": {
+    "wait_each": 1.4738131330219972,
+    "wait_tail": 0.8891174998504052,
+    "same_stream": 0.9189124051306138,
+    "wait_each_consumer": 0.9961277503082792,
+    "same_stream_consumer": 0.9582219341600894,
+    "local_consumer": 0.33370361172244617
+  },
+  "repeat_max_difference_percent": 1.4747882160241144,
+  "components_us": {
+    "same_stream_communication": 8.354750275611877,
+    "wait_tail_communication": 8.422200009226799,
+    "wait_each_capture_artifact": 14.305049926042557,
+    "consumer_same_stream": 10.227550193667412,
+    "consumer_process_group": 10.254750028252602,
+    "local_consumer_only": 0.7571999914944172,
+    "consumer_minus_comm_minus_local": 1.1155999265611172
+  },
+  "checks": [
+    {
+      "variant": "wait_each",
+      "run": "run4",
+      "predicted_us": [
+        12,
+        18
+      ],
+      "measured_us": 14.317649602890015,
+      "verdict": "hit"
+    },
+    {
+      "variant": "wait_each",
+      "run": "run5",
+      "predicted_us": [
+        12,
+        18
+      ],
+      "measured_us": 14.292450249195099,
+      "verdict": "hit"
+    },
+    {
+      "variant": "wait_tail",
+      "run": "run4",
+      "predicted_us": [
+        8,
+        12
+      ],
+      "measured_us": 8.483850210905075,
+      "verdict": "hit"
+    },
+    {
+      "variant": "wait_tail",
+      "run": "run5",
+      "predicted_us": [
+        8,
+        12
+      ],
+      "measured_us": 8.360549807548523,
+      "verdict": "hit"
+    },
+    {
+      "variant": "same_stream",
+      "run": "run4",
+      "predicted_us": [
+        6,
+        10
+      ],
+      "measured_us": 8.322550356388092,
+      "verdict": "hit"
+    },
+    {
+      "variant": "same_stream",
+      "run": "run5",
+      "predicted_us": [
+        6,
+        10
+      ],
+      "measured_us": 8.386950194835663,
+      "verdict": "hit"
+    },
+    {
+      "variant": "wait_each_consumer",
+      "run": "run4",
+      "predicted_us": [
+        16,
+        25
+      ],
+      "measured_us": 10.25559976696968,
+      "verdict": "miss (below)"
+    },
+    {
+      "variant": "wait_each_consumer",
+      "run": "run5",
+      "predicted_us": [
+        16,
+        25
+      ],
+      "measured_us": 10.253900289535522,
+      "verdict": "miss (below)"
+    },
+    {
+      "variant": "same_stream_consumer",
+      "run": "run4",
+      "predicted_us": [
+        8,
+        14
+      ],
+      "measured_us": 10.219450294971466,
+      "verdict": "hit"
+    },
+    {
+      "variant": "same_stream_consumer",
+      "run": "run5",
+      "predicted_us": [
+        8,
+        14
+      ],
+      "measured_us": 10.235650092363358,
+      "verdict": "hit"
+    },
+    {
+      "variant": "local_consumer",
+      "run": "run4",
+      "predicted_us": [
+        0.8,
+        4
+      ],
+      "measured_us": 0.7573999930173159,
+      "verdict": "miss (below)"
+    },
+    {
+      "variant": "local_consumer",
+      "run": "run5",
+      "predicted_us": [
+        0.8,
+        4
+      ],
+      "measured_us": 0.7569999899715185,
+      "verdict": "miss (below)"
+    }
+  ],
+  "rules": {
+    "tail_gain_at_least_20_percent": true,
+    "repeat_difference_within_15_percent": true,
+    "same_stream_communication_within_gate": true,
+    "consumer_chain_within_12us": true,
+    "pg_consumer_chain_within_12us": true
+  },
+  "projection": {
+    "label": "projected, NOT measured engine speed",
+    "basis": "measured 10 KiB component latency + original estimated TP compute terms (8.35/2 + 1.56 ms); upstream single-card reference token-rush Phase 4, 2026-09-09/10",
+    "from_communication_only": {
+      "L_us": 8.354750275611877,
+      "step_ms": 6.804408035278319,
+      "tokens_per_second": 146.96355580314597,
+      "speedup_vs_upstream": 1.4564088380091764
+    },
+    "from_communication_plus_residual": {
+      "step_ms": 6.947204825878142,
+      "tokens_per_second": 143.9427834738697,
+      "speedup_vs_upstream": 1.4264729842260486,
+      "residual_ms_per_token": 0.142796790599823
+    },
+    "from_consumer_chain": {
+      "L_us": 10.227550193667412,
+      "step_ms": 7.044126424789428,
+      "tokens_per_second": 141.9622448116259,
+      "speedup_vs_upstream": 1.406845846083213
+    }
+  },
+  "gate": {
+    "same_stream_communication_le_12us": true,
+    "consumer_chain_le_12us": true,
+    "synthetic_M0_chain_run": false,
+    "M0_cleared": false,
+    "full_S2_one_shot": "unevaluated: P2P unavailable, host-staged one-shot not implemented/measured",
+    "decision": "The S2 'stop this NCCL path' decision was withdrawn: the 14.3 us 128-op chain was a capture-time dependency artifact, not transport. A dependent chain with a per-step consumer costs about 10.2 us at 10 KiB. Next bounded step is the synthetic GEMV/collective/norm M0 chain with a new numeric prediction; no model implementation and no 1.5x claim yet."
+  }
+}

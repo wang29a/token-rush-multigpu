@@ -5,10 +5,12 @@
 
 ## Current status
 
-**S1 and the S2 NCCL baseline are recorded (2026-10-27).** Read `lab/LOG.md`,
-`results/2026-10-27-vast-57952342/S1.md`, and its `s2/S2.md`.
-Full S2's one-shot comparison is unevaluated. M0 remains uncleared. No model
-or GEMV/collective/norm synthetic chain was run.
+**S1, S2 and the S2-sync cause probe are recorded (2026-10-27).** Read
+`lab/LOG.md`, `results/2026-10-27-vast-57952342/S1.md`, its `s2/S2.md` and its
+`s2-sync/S2-sync.md`. S2-sync withdrew S2's "stop this NCCL path" decision: the
+128-operation chain miss came from capture-time graph structure, not transport,
+and a dependent chain with a per-step consumer stays under 12 us. M0 still
+remains uncleared, and no model or synthetic GEMV/collective/norm chain was run.
 
 ## Settled decisions (not open for discussion)
 
@@ -24,33 +26,39 @@ or GEMV/collective/norm synthetic chain was run.
 5. **Code is written on the rented machine** (`/workspace/lab/`). This repository
    holds the plan, the stage code, the logs and the result summaries.
 
-## Next: stop this NCCL path before model work
+## Next: measure the synthetic M0 chain, once
 
-S2 code is `lab/02_collectives.py`; generate tables with `lab/report_s2.py`.
-`default1` is the full four-size/five-operation sweep; `default2` repeats the
-small all-reduce case. `ring-ll1`, `tree-ll1`, `ring-simple1` are the entire
-bounded cause/configuration check. All variants exit normally, including
-correctness checks and graph/NCCL teardown. Do not expand the sweep after
-seeing these results. Exact numbers are generated in the log, never retyped.
+S2-sync code is `lab/02_sync_probe.py`; generate its tables with
+`lab/report_s2_sync.py`. `run4`/`run5` are the complete forward and
+reverse-order measurements; `run1` (debug-mode graph-lifetime leak) and
+`run2`/`run3` (Python 3.12 `init_rank` failure) are withdrawn or failed
+diagnostics and must not be promoted. Exact numbers are generated in the log,
+never retyped.
 
-- The isolated all-reduce meets 12 us, while every tested 128-operation graph
-  misses that budget per operation. The <=25% isolated-vs-chain prediction was
-  refuted. Report both; do not use the isolated result to declare M0 cleared.
-- NCCL logs identify SHM/direct/direct, with peer access false in both
-  directions. The P2P-based one-shot cannot be tested as specified. A custom
-  host-staged one-shot has not been implemented or measured.
-- Extra serial-chain cost has not been separated into graph event/stream
-  overhead versus transport. It is a negative result for this implementation
-  path, not proof of an immutable physical limit of all two-5090 systems.
-- No model or synthetic GEMV/collective/norm chain was run. Full S2's one-shot
-  >=2x criterion and full M0 remain unevaluated/uncleared.
+- The S2 wait-each chain is a capture artifact, not a link limit: it was the
+  only variant whose per-step cost grew with depth, and its DOT dump carries a
+  far denser dependency graph than tail-wait, same-stream or the consumer
+  variants. The stop decision is withdrawn; the S2 numbers themselves stand.
+- A dependent 10 KiB chain with a per-step consumer costs about 10.2 us both via
+  same-stream native NCCL and via ProcessGroup with per-step waits, so the
+  result does not depend on the native communicator. It is flat in depth.
+- That meets the 12 us component budget but does not clear M0. The consumer is
+  one elementwise multiply; a real layer adds GEMV and RMSNorm compute whose
+  overlap with the all-reduce is unmeasured.
+- Decomposition, to be checked, not assumed: communication about 8.4 us/step,
+  the local multiply about 0.8 us, and roughly 1.1 us/step of serialization that
+  neither term contains. The projection in the log charges that residual
+  explicitly.
+- Full S2's one-shot >=2x criterion remains unevaluated: peer access is false
+  and no host-staged one-shot was implemented or measured.
 
-**Decision:** do not enter S3–S10 model implementation on the present evidence.
-Any further Mode A work first needs a new bounded cause experiment (isolate
-captured stream/event edges, or specify a host-staged collective), with a
-numeric prediction written before running. If the M0 gate cannot be met, the
-agreed fallback is Mode B, not more cards. No automatic instance destruction
-or driver patching.
+**Decision:** one bounded synthetic M0 chain is the next experiment - a
+GEMV-shaped block, the 10 KiB all-reduce and an RMSNorm-shaped block per layer,
+captured with the consumer-style dependency, numeric prediction first, at most
+two complete runs. If it holds at or below 12 us per layer, Mode A earns model
+implementation; if not, the fallback is Mode B, not more cards. No model work
+and no 1.5x claim before that measurement. No automatic instance destruction or
+driver patching.
 
 S1's original gate ambiguity remains documented in `S1.md`: one-message vs
 full roundtrip against the same 15 us number. `run3`/`run4` are its primary and

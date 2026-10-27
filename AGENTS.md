@@ -12,17 +12,19 @@ Accounting and falsifiers are in `docs/multigpu.md`.
 
 ## Stage
 
-S1 and the S2 NCCL baseline were measured on 2026-10-27; see `lab/LOG.md`.
+S1, S2 and the S2-sync cause probe were measured on 2026-10-27; see `lab/LOG.md`.
 S1 remains qualified (P2P unavailable; one-way/RTT gate definitions differ).
-S2's isolated all-reduce meets the 12 us component threshold, but the
-128-operation graph misses that budget in the default, repeat and all bounded
-protocol/algorithm profiles. The planned one-shot comparison is unevaluated.
-Do not call full S2 passed or M0 cleared. No working engine or synthetic
-GEMV/collective/norm chain was measured. Stop model implementation on this
-NCCL path pending a new, explicitly predicted cause experiment or the agreed
-fallback. Computed outcomes remain `projected`, unmeasured inputs `estimate`;
-`measured` is reserved for recorded runs with raw artifacts.
-Measurements enter only through `lab/LOG.md` and `results/<date>-<box>/`.
+S2's isolated all-reduce meets the 12 us component threshold and its
+128-operation graph misses it, but the S2-sync probe attributes that miss to
+capture-time graph structure - a dense dependency graph built from repeated
+waits - not transport: a dependent chain with a per-step consumer costs about
+10.2 us at 10 KiB and is flat in depth. S2's stop decision is therefore
+withdrawn; its raw numbers stand. **M0 remains uncleared:** no
+GEMV/collective/norm synthetic chain was run, so compute/communication overlap
+and the per-layer budget are unmeasured. No working engine exists. Computed
+outcomes remain `projected`, unmeasured inputs `estimate`; `measured` is
+reserved for recorded runs with raw artifacts. Measurements enter only through
+`lab/LOG.md` and `results/<date>-<box>/`.
 
 ## Numbers
 
