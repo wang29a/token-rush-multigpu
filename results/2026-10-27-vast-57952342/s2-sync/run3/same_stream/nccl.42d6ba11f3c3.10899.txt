@@ -1,0 +1,3 @@
+42d6ba11f3c3:10899:10899 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+42d6ba11f3c3:10899:10899 [0] NCCL INFO Bootstrap: Using eth0:172.17.0.3<0>
+42d6ba11f3c3:10899:10899 [0] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault

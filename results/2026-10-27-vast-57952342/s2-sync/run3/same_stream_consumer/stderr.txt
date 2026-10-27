@@ -1,0 +1,30 @@
+[rank0]:[W1027 11:57:54.685877037 ProcessGroupNCCL.cpp:1575] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+W1027 11:57:55.815000 10848 torch/multiprocessing/spawn.py:165] Terminating process 10853 via signal SIGTERM
+Traceback (most recent call last):
+  File "/workspace/token-rush-multigpu/lab/02_sync_probe.py", line 195, in <module>
+    try:main()
+        ^^^^^^
+  File "/workspace/token-rush-multigpu/lab/02_sync_probe.py", line 190, in main
+    mp.spawn(worker,args=(args,uid),nprocs=2,join=True)
+  File "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/torch/multiprocessing/spawn.py", line 340, in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/torch/multiprocessing/spawn.py", line 296, in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+  File "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/torch/multiprocessing/spawn.py", line 211, in join
+    raise ProcessRaisedException(msg, error_index, failed_process.pid)
+torch.multiprocessing.spawn.ProcessRaisedException: 
+
+-- Process 0 terminated with the following error:
+Traceback (most recent call last):
+  File "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/torch/multiprocessing/spawn.py", line 87, in _wrap
+    fn(i, *args)
+  File "/workspace/token-rush-multigpu/lab/02_sync_probe.py", line 44, in worker
+    native_comm=torch.cuda.nccl.init_rank(2,uid,rank)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/torch/cuda/nccl.py", line 61, in init_rank
+    return torch._C._nccl_init_rank(num_ranks, uid, rank)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SystemError: PY_SSIZE_T_CLEAN macro must be defined for '#' formats
+

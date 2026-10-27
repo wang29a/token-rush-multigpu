@@ -1,0 +1,7 @@
+{
+  "written_at_utc": "2026-10-27T11:59:07.096862+00:00",
+  "observed": "run2/run3 ProcessGroup variants exit normally and produce DOT; torch.cuda.nccl.init_rank fails before native measurements under Python 3.12: PY_SSIZE_T_CLEAN macro must be defined for # formats.",
+  "fix": "Bind the already loaded NCCL 2.28 public C functions with ctypes. Keep PyTorch tensors/streams and CUDA Graphs. No new collective or device kernel. UID size=128 and BF16 enum=9 verified from installed nccl.h.",
+  "prediction": "All six variants complete correctly in forward-order run4 and reverse-order run5. Original numerical predictions remain unchanged, including misses already observed for consumer/local controls. These are the two complete final runs, not an extended tuning search.",
+  "preserve": "run1 debug-lifetime failure and run2/run3 wrapper failures are retained as diagnostic artifacts, not silently promoted to successful full runs."
+}

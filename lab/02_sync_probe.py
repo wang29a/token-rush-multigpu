@@ -6,6 +6,7 @@ per-layer consumer synchronization. same_stream places native NCCL and local
 PyTorch compute on the same CUDA stream via torch.cuda.nccl, reusing NCCL.
 """
 import argparse
+import ctypes
 from datetime import datetime, timedelta, timezone
 import hashlib
 import importlib.util
@@ -22,6 +23,45 @@ import traceback
 ROOT=Path(__file__).resolve().parents[1]
 VARIANTS=("wait_each","wait_tail","same_stream","wait_each_consumer",
           "same_stream_consumer","local_consumer")
+
+
+class NativeNccl:
+    """Thin public NCCL C-API binding; tensors/streams remain PyTorch-owned.
+
+    torch.cuda.nccl.init_rank in this wheel fails under Python 3.12 with
+    PY_SSIZE_T_CLEAN. Reuse the already loaded NCCL library directly instead.
+    Signatures, UID size and bf16 enum are checked against installed nccl.h.
+    """
+    class UniqueId(ctypes.Structure):
+        _fields_=[("internal",ctypes.c_char*128)]
+
+    def __init__(self,uid,rank):
+        libraries={line.split()[-1] for line in Path('/proc/self/maps').read_text().splitlines()
+                   if '/libnccl.so' in line}
+        assert len(libraries)==1,libraries
+        self.lib=ctypes.CDLL(next(iter(libraries)))
+        self.lib.ncclGetErrorString.argtypes=[ctypes.c_int]
+        self.lib.ncclGetErrorString.restype=ctypes.c_char_p
+        self.lib.ncclCommInitRank.argtypes=[ctypes.POINTER(ctypes.c_void_p),ctypes.c_int,self.UniqueId,ctypes.c_int]
+        self.lib.ncclAllReduce.argtypes=[ctypes.c_void_p,ctypes.c_void_p,ctypes.c_size_t,
+                                        ctypes.c_int,ctypes.c_int,ctypes.c_void_p,ctypes.c_void_p]
+        self.lib.ncclCommDestroy.argtypes=[ctypes.c_void_p]
+        for name in ('ncclCommInitRank','ncclAllReduce','ncclCommDestroy'):
+            getattr(self.lib,name).restype=ctypes.c_int
+        self.comm=ctypes.c_void_p()
+        assert len(uid)==128
+        self.check(self.lib.ncclCommInitRank(ctypes.byref(self.comm),2,self.UniqueId.from_buffer_copy(uid),rank))
+
+    def check(self,code):
+        if code:raise RuntimeError(self.lib.ncclGetErrorString(code).decode())
+
+    def all_reduce(self,tensor,stream):
+        # ncclBfloat16=9; ncclSum=0, from the installed NCCL 2.28 header.
+        self.check(self.lib.ncclAllReduce(tensor.data_ptr(),tensor.data_ptr(),tensor.numel(),9,0,
+                                         self.comm,stream.cuda_stream))
+
+    def close(self):
+        self.check(self.lib.ncclCommDestroy(self.comm))
 
 
 def append(path,row):
@@ -41,7 +81,7 @@ def worker(rank,args,uid):
     torch.cuda.set_stream(stream)
     native_comm=None
     if args.variant.startswith("same_stream"):
-        native_comm=torch.cuda.nccl.init_rank(2,uid,rank)
+        native_comm=NativeNccl(uid,rank)
     consumer=args.variant.endswith("consumer")
     local=args.variant=="local_consumer"
     for size in args.sizes:
@@ -54,7 +94,7 @@ def worker(rank,args,uid):
                 for _ in range(depth):
                     if not local:
                         if native_comm is not None:
-                            torch.cuda.nccl.all_reduce([tensor],streams=[stream],comms=[native_comm])
+                            native_comm.all_reduce(tensor,stream)
                         else:
                             work=dist.all_reduce(tensor,op=dist.ReduceOp.SUM,async_op=True)
                             handles.append(work)
@@ -131,6 +171,7 @@ def worker(rank,args,uid):
         del tensor,pattern
     dist.barrier()
     torch.cuda.synchronize()
+    if native_comm is not None:native_comm.close()
     del native_comm
     dist.destroy_process_group()
 
