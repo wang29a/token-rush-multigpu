@@ -1,0 +1,63 @@
+{
+  "written_at_utc": "2026-10-27T11:54:18.311075+00:00",
+  "question": "Does ProcessGroup current-stream <-> NCCL-stream ordering explain the expensive captured 128-op chain?",
+  "basis": "S2 isolated graph 9.391 us versus dependent chain 14.309 us; inference/hypothesis, not measured attribution. Local torch.cuda.nccl wrapper accepts explicit streams and communicators; no new collective/kernel implementation.",
+  "parameters": {
+    "dtype": "bfloat16",
+    "sizes_bytes": [
+      10240,
+      81920
+    ],
+    "depths": [
+      1,
+      8,
+      32,
+      128
+    ],
+    "samples": 9,
+    "warmup": 20,
+    "variants": [
+      "wait_each",
+      "wait_tail",
+      "same_stream",
+      "wait_each_consumer",
+      "same_stream_consumer",
+      "local_consumer"
+    ]
+  },
+  "predictions_us_per_step_at_10KiB_depth128": {
+    "wait_each": [
+      12,
+      18
+    ],
+    "wait_tail": [
+      8,
+      12
+    ],
+    "same_stream": [
+      6,
+      10
+    ],
+    "wait_each_consumer": [
+      16,
+      25
+    ],
+    "same_stream_consumer": [
+      8,
+      14
+    ],
+    "local_consumer": [
+      0.8,
+      4
+    ]
+  },
+  "predictions": {
+    "tail_vs_each_gain_percent_min": 20,
+    "repeat_difference_percent_max": 15,
+    "same_stream_communication_only_gate_us": 12
+  },
+  "correctness": "Rank-distinct full BF16 patterns. Pure SUM uses input scale 2^-min(depth,120), expected pattern*3*2^(depth-1-min(depth,120)), avoiding both overflow and subnormal inputs. SUM+mul_(0.5) consumer expects pattern*1.5. Local-only control scales up by 2^min(depth,120) before depth halvings to avoid underflow. Fresh nonzero pattern checked after capture; no non-finite values accepted.",
+  "limitations": "Tail wait is valid only for pure NCCL same-buffer chains with no intermediate compute. Direct same-stream NCCL uses a separate native communicator via PyTorch wrapper, so compare graph structure and communicator logs; do not attribute all delta to event nodes alone. Consumer is an elementwise dependency probe, not GEMV/RMSNorm or a model.",
+  "decision": "Two complete runs only, then decide once. If only tail-wait improves, do not call the model path fixed. If same-stream and correctness checks meet the component budget, retain as candidate for a subsequent compute/collective/norm probe; M0 and full S2 remain uncleared. If no suitable path meets budget, stop this route; do not add configurations.",
+  "order": "run1 forward variants; run2 reverse variants, same depths and sizes"
+}

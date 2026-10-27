@@ -309,3 +309,14 @@ all code hashes against recorded commits and verifies row/sample counts.
 References: [PyTorch collectives](https://docs.pytorch.org/docs/2.11/distributed.html),
 [NCCL graph capture](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/cudagraph.html),
 [NCCL diagnostic environment overrides](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html).
+
+
+## S2-sync — captured stream ordering (2026-10-27, vast-57952342)
+
+**Question:** Does cross-stream synchronization account for the excess serial graph cost?
+
+**Prediction (written before the run):** At 10 KiB and depth 128: wait-each 12–18 us/step; tail-wait 8–12; direct same-stream NCCL 6–10; wait-each with consumer 16–25; same-stream with consumer 8–14; local consumer 0.8–4. Tail-wait improves >=20%; repeat differs <=15%. These are estimates, preserved in `results/2026-10-27-vast-57952342/s2-sync/prediction.json`.
+
+**Measured / bottleneck / prediction vs result:** Pending.
+
+**Next step:** Two runs; no model work or M0 clearance based on a communication-only shortcut.
