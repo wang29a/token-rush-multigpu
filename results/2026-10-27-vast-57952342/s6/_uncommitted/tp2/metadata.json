@@ -1,0 +1,127 @@
+{
+  "started_utc": "2026-10-27T12:43:29.583425+00:00",
+  "python": "3.12.15 (main, Oct 13 2026, 16:52:04) [GCC 15.3.0]",
+  "torch": "2.11.0+cu128",
+  "cuda": "12.8",
+  "nccl": [
+    2,
+    28,
+    9
+  ],
+  "architectures": [
+    "sm_75",
+    "sm_80",
+    "sm_86",
+    "sm_90",
+    "sm_100",
+    "sm_120"
+  ],
+  "parameters": {
+    "mode": "tp2",
+    "output": "/workspace/token-rush-multigpu/results/2026-10-27-vast-57952342/s6/tp2",
+    "tokens": 96,
+    "warmup": 8,
+    "max_len": 256,
+    "prompt": "The capital of France is"
+  },
+  "git_commit": {
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/token-rush-multigpu",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "stdout": "e2c4b0599ed2839b13502973831470b437726e5e\n",
+    "stderr": ""
+  },
+  "git_status": {
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/token-rush-multigpu",
+      "status",
+      "--porcelain"
+    ],
+    "returncode": 0,
+    "stdout": " M lab/05_tp2_decode.py\n?? lab/05b_hf_reference.py\n?? results/2026-10-27-vast-57952342/s6/tp1/\n",
+    "stderr": ""
+  },
+  "script_sha256": "255a53c21e74b76cc08375a111489584a1ae1c9e461bc2a3bdaa42072a769bc4",
+  "gpus": [
+    "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32119MB, multi_processor_count=170, uuid=7e830f1b-8d05-dc6f-8719-6d7108060007, pci_bus_id=129, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)",
+    "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32119MB, multi_processor_count=170, uuid=695dd04d-9a84-aa7b-e2a3-6417fb4c0738, pci_bus_id=194, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)"
+  ],
+  "p2p": {
+    "0->1": false,
+    "1->0": false
+  },
+  "environment": {
+    "NCCL_VERSION": "2.30.7-1",
+    "LD_LIBRARY_PATH": "/usr/local/nvidia/lib:/usr/local/nvidia/lib64"
+  },
+  "commands": [
+    {
+      "argv": [
+        "nvidia-smi",
+        "topo",
+        "-m"
+      ],
+      "returncode": 0,
+      "stdout": "\t\u001b[4mGPU0\tGPU1\tCPU Affinity\tNUMA Affinity\tGPU NUMA ID\u001b[0m\nGPU0\t X \tNODE\t0-63\t0\t\tN/A\nGPU1\tNODE\t X \t0-63\t0\t\tN/A\n\nLegend:\n\n  X    = Self\n  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)\n  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node\n  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)\n  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)\n  PIX  = Connection traversing at most a single PCIe bridge\n  NV#  = Connection traversing a bonded set of # NVLinks\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "topo",
+        "-p2p",
+        "r"
+      ],
+      "returncode": 0,
+      "stdout": " \t\u001b[4mGPU0\tGPU1\t\u001b[0m\n GPU0\tX\tCNS\t\n GPU1\tCNS\tX\t\n\nLegend:\n\n  X    = Self\n  OK   = Status Ok\n  CNS  = Chipset not supported\n  GNS  = GPU not supported\n  TNS  = Topology not supported\n  NS   = Not supported\n  U    = Unknown\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "topo",
+        "-p2p",
+        "w"
+      ],
+      "returncode": 0,
+      "stdout": " \t\u001b[4mGPU0\tGPU1\t\u001b[0m\n GPU0\tX\tCNS\t\n GPU1\tCNS\tX\t\n\nLegend:\n\n  X    = Self\n  OK   = Status Ok\n  CNS  = Chipset not supported\n  GNS  = GPU not supported\n  TNS  = Topology not supported\n  NS   = Not supported\n  U    = Unknown\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=index,name,uuid,driver_version,pci.bus_id,pcie.link.gen.current,pcie.link.width.current,power.limit,clocks.current.sm,clocks.current.memory,temperature.gpu,utilization.gpu",
+        "--format=csv"
+      ],
+      "returncode": 0,
+      "stdout": "index, name, uuid, driver_version, pci.bus_id, pcie.link.gen.current, pcie.link.width.current, power.limit [W], clocks.current.sm [MHz], clocks.current.memory [MHz], temperature.gpu, utilization.gpu [%]\n0, NVIDIA GeForce RTX 5090, GPU-7e830f1b-8d05-dc6f-8719-6d7108060007, 570.195.03, 00000000:81:00.0, 1, 16, 400.00 W, 28 MHz, 405 MHz, 37, 0 %\n1, NVIDIA GeForce RTX 5090, GPU-695dd04d-9a84-aa7b-e2a3-6417fb4c0738, 570.195.03, 00000000:C2:00.0, 1, 16, 400.00 W, 22 MHz, 405 MHz, 34, 0 %\n",
+      "stderr": ""
+    }
+  ],
+  "p2p_enabled_variant": "UNAVAILABLE: runtime peer access is false; no driver patch attempted",
+  "loaded_cuda_libraries": [
+    "/usr/local/cuda-13.3/compat/libcuda.so.610.57.04",
+    "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+    "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/nvidia/nccl/lib/libnccl.so.2"
+  ],
+  "stage": "S6 Qwen3-8B decode",
+  "mode": "tp2",
+  "metadata_helper_sha256": "827ab27181644a3ec988964075e9120e12602e26cf2c613c969b45408d68685c",
+  "model": "Qwen/Qwen3-8B",
+  "model_path": "/tmp/qwen3-8b",
+  "prompt": "The capital of France is",
+  "prompt_ids": [
+    785,
+    6722,
+    315,
+    9625,
+    374
+  ]
+}

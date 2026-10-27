@@ -10,16 +10,18 @@ changes a single variable and records the same five entries: baseline,
 optimization, number, bottleneck, next step. The purpose is to develop judgement
 about multi-GPU inference rather than to collect conclusions.
 
-> **Status: link, collective, capture-structure and 64-layer chain probes
-> measured, 2026-10-27.** P2P is unavailable on this box. The isolated
+> **Status: link, collective, capture-structure, 64-layer chain and Qwen3-8B
+> TP=2 decode measured, 2026-10-27.** P2P is unavailable on this box. The isolated
 > all-reduce meets the component threshold; the earlier 128-operation chain miss
 > is attributed to capture-time graph structure, not transport. A 64-layer
 > production-shard chain captures in one graph per card, is bit-exact, and equals
 > compute plus communication within about 2%, with an 11-12% communication
 > share. An S3 split sweep puts the bs=1 crossover on the winning side: split-N
-> is about 1.5x one layer at M=1, and loses above M=64. M0's kill criteria are
-> not triggered, but M0 is not cleared (bf16 chain, int4 kernel and fixed term
-> still projected). No model performance is measured.
+> is about 1.5x one layer at M=1, and loses above M=64. Qwen3-8B decode measures
+> **1.46x** (80.3 -> 117.6 tok/s), but TP=2's greedy text diverges from TP=1 at
+> token 4, so **S6 is not passed** and M1 is blocked. M0's kill criteria are not
+> triggered, but M0 is not cleared (bf16 chain, int4 kernel and fixed term still
+> projected).
 
 <!-- S1_RESULTS_START -->
 
@@ -125,6 +127,24 @@ Qwen3-8B TP=2 test model, prediction first.
 [S4 report](results/2026-10-27-vast-57952342/s4/S4.md) · [Full data](results/2026-10-27-vast-57952342/s4/matrix.csv).
 
 <!-- S4_RESULTS_END -->
+
+<!-- S6_RESULTS_START -->
+
+S6 Qwen3-8B decode measured on 2026-10-27, same 2 x RTX 5090 box.
+Code `07f22d1`. bf16, 96 greedy tokens after 8 warmup, one graph per card.
+
+| variant | tok/s | ms/token | peak GiB/card |
+|---|---:|---:|---:|
+| tp1 | 80.3 | 12.45 | 15.3 |
+| tp2 | 117.6 | 8.50 | 8.2 |
+| tp2_fp32reduce | 114.5 | 8.74 | 8.2 |
+
+TP=2 is **1.46x** TP=1, but its greedy text leaves TP=1 at token 4 and
+loops; fp32 collectives do not change it. **S6's speed bar is met, S6 is not passed.**
+Next: fp32 residual stream, then one re-run of this comparison.
+[S6 report](results/2026-10-27-vast-57952342/s6/S6.md) · [Full data](results/2026-10-27-vast-57952342/s6/matrix.csv).
+
+<!-- S6_RESULTS_END -->
 
 ## Documents
 

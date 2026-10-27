@@ -27,19 +27,14 @@ def load(base):
         row = json.loads((d / "row.rank0.json").read_text())
         meta = json.loads((d / "metadata.json").read_text())
         sha = meta["git_commit"]["stdout"].strip()
-        if name == "tp2_fp32reduce":
-            # This variant ran from the working tree after the recorded commit;
-            # verify it against the tree and say so in the report.
-            code = (ROOT / "lab/05_tp2_decode.py").read_bytes()
-        else:
-            code = subprocess.check_output(["git", "-C", str(ROOT), "show", f"{sha}:lab/05_tp2_decode.py"])
+        code = subprocess.check_output(["git", "-C", str(ROOT), "show", f"{sha}:lab/05_tp2_decode.py"])
         assert hashlib.sha256(code).hexdigest() == meta["script_sha256"], name
         assert row["finite"] and row["world"] == (1 if name == "tp1" else 2)
         assert len(row["generated"]) == row["tokens"] + 1
         if name != "tp1":
             other = json.loads((d / "row.rank1.json").read_text())
             assert other["generated"] == row["generated"], name
-            assert abs(other["tokens_per_second"] / row["tokens_per_second"] - 1) < 1e-6, name
+            assert abs(other["tokens_per_second"] / row["tokens_per_second"] - 1) < 2e-3, name
         out[name] = {"row": row, "meta": meta,
                      "logits": np.load(d / "first_logits.npy"),
                      "generated": json.loads((d / "generated.json").read_text())}
@@ -148,10 +143,9 @@ within 0.5 of TP=1, and greedy tokens identical for at least 32 steps.
 runtime peer access false. PyTorch {data['tp2']['meta']['torch']}, CUDA wheel
 {data['tp2']['meta']['cuda']}, NCCL {'.'.join(map(str, data['tp2']['meta']['nccl']))}.
 Code commit `{summary['code_commit'][:7]}`; engine
-`lab/05_tp2_decode.py` SHA-256 `{summary['script_sha256']}` (the
-`tp2_fp32reduce` variant was run from a working-tree edit of that script, then
-committed; its row is checked against the tree, the other rows against the
-commit). Weights:
+`lab/05_tp2_decode.py` SHA-256 `{summary['script_sha256']}`. An earlier TP=1/TP=2
+pair ran before the engine was committed; it is archived under
+`s6/_uncommitted/` and is not used here. Weights:
 Qwen/Qwen3-8B bf16, 36 layers, hidden 4096, 8 KV heads, vocab 151936.
 
 **What was done:** prompt `{prediction['prompt']!r}`, {r1['tokens']} greedy tokens

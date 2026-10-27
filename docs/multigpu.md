@@ -11,7 +11,9 @@ criteria are not triggered, but M0 is not cleared: the chain is bf16, not the
 production int4 kernel, and the fixed term is estimated. An S3 split sweep puts
 the bs=1 case on the winning side of the break-even: split-N is about 1.5x one
 layer at M=1 and loses above M=64, so the batch cells of S7 must not reuse
-large-M timings.
+large-M timings. An S6 decode of Qwen3-8B on this box measures 80.3 -> 117.6
+tok/s (1.46x), but the TP=2 greedy text diverges from TP=1 at token 4; the speed
+bar is met and text equivalence is not, so M1 is blocked pending a precision fix.
 The
 single-card engine is closed (phases 0–5, `docs/progress.md` step 35). This is
 the plan for testing the same thesis one level up, and it is written to be

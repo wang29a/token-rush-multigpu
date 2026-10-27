@@ -1,0 +1,4 @@
+variant,world,tokens,tokens_per_second,ms_per_token,peak_gib,all_reduces_per_token,greedy_agreement_vs_tp1,first_divergence,logits_max_abs_diff_vs_tp1,logits_max_abs_diff_vs_hf
+tp1,1,96,80.3190,12.4504,15.303,0,97,,0.00000,0.23438
+tp2,2,96,117.6182,8.5021,8.236,72,24,4,0.26562,0.18750
+tp2_fp32reduce,2,96,114.4784,8.7353,8.236,72,24,4,0.26562,0.18750

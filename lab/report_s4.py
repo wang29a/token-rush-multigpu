@@ -337,8 +337,17 @@ flags, and the prediction ranges read from `prediction.json`.
     log = ROOT / "lab/LOG.md"
     old = log.read_text().rstrip()
     marker = "## S4 —" if "## S4 —" in old else "## S3/S4 —"
-    head = old.split(marker, 1)[0].rstrip() if marker in old else old
-    log.write_text(_final(re.sub(r"\n{3,}", "\n\n", head + "\n\n" + body)))
+    if marker in old:
+        before, rest = old.split(marker, 1)
+        nxt = re.search(r"(?m)^## S[0-9]", rest)
+        rest = rest[nxt.start():] if nxt else ""
+        old = (before.rstrip() + "\n\n" + rest).strip() if rest else before.rstrip()
+    if "## S6 —" in old:
+        before, after = old.split("## S6 —", 1)
+        text = before.rstrip() + "\n\n" + body + "\n\n## S6 —" + after
+    else:
+        text = old + "\n\n" + body
+    log.write_text(_final(re.sub(r"\n{3,}", "\n\n", text)))
 
     index = ["S4 64-layer capture probe measured on 2026-10-27, same 2 x RTX 5090 box.",
              f"Code `{commit[:7]}`. bf16 GEMV at hidden 5120 / half-N 8704, 10 KiB SUM, nine samples.", "",

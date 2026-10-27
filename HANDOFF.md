@@ -5,10 +5,10 @@
 
 ## Current status
 
-**S1, S2, the S2-sync cause probe, the S3 split sweep and the S4 64-layer chain
-are recorded (2026-10-27).** Read `lab/LOG.md`,
+**S1, S2, the S2-sync cause probe, the S3 split sweep, the S4 64-layer chain and
+the S6 Qwen3-8B decode are recorded (2026-10-27).** Read `lab/LOG.md`,
 `results/2026-10-27-vast-57952342/S1.md`, its `s2/S2.md`, `s2-sync/S2-sync.md`,
-`s3/S3.md` and `s4/S4.md`. S2-sync withdrew S2's "stop this
+`s3/S3.md`, `s4/S4.md` and `s6/S6.md`. S2-sync withdrew S2's "stop this
 NCCL path" decision: the 128-operation chain miss came from capture-time graph
 structure, not transport. S4 then captured 64-layer chains in one graph per
 card: exact correctness, additivity within about 2%, 64-layer communication
@@ -30,37 +30,35 @@ model has been run.
 5. **Code is written on the rented machine** (`/workspace/lab/`). This repository
    holds the plan, the stage code, the logs and the result summaries.
 
-## Next: the Qwen3-8B test model at TP=2
+## Next: make TP=2 text-equivalent before M1
 
-S3 code is `lab/04_linear_splits.py` (`lab/report_s3.py`); S4 code is
-`lab/03_block_chain.py` (`lab/report_s4.py`).
-`run1`/`run2` are the complete forward and reverse-order measurements; all 16
-variant runs exited cleanly. Exact numbers are generated in the log, never
-retyped.
+S6 code is `lab/05_tp2_decode.py` (`lab/report_s6.py`); the Hugging Face
+reference is `lab/05b_hf_reference.py`. Weights were downloaded to
+`/tmp/qwen3-8b` (16 GB, not in git, not persistent). An earlier TP1/TP2 pair ran
+before the engine was committed; it is archived under `s6/_uncommitted/` and is
+not used. Exact numbers are generated in the log, never retyped.
 
-- S3 measured the split crossover on one bf16 layer: split-N is about 1.5x at
-  M=1 and wins through M=64, then loses at M=512 (0.81x) and M=4096 (0.75x).
-  The bs=1 cell is the winning one; large-batch cells are not.
-- Capture holds at 64 layers and every replay is bit-identical to a
-  no-collective reference. Additivity holds: the shard chain equals compute
-  plus communication within about 2%.
-- The shard chain is weight-read bound, so eager and graphed costs are nearly
-  equal (about 1.02x). Graphs are a 3x lever only on the launch-bound toy chain.
-  Do not repeat the claim that graphs are a 3x lever for the production shape.
-- The 64-layer communication share is about 11-12%, comfortably under S5's 25%
-  criterion, and it is a conservative bound: the production layer has more
-  compute than the one-GEMV-per-layer chain.
-- M0's kill criteria (L > 12 us, capture failure) are not triggered, but M0 is
-  **not** declared cleared: the probe used bf16 weights, not the int4 4.25 bpw
-  kernel, and the 1.56 ms fixed term is still an estimate from the single-card
-  engine. The projection at the measured L is 6.82 ms, 146.6 tok/s, 1.45x
-  upstream - projected, not measured.
+- Measured decode, 96 greedy tokens after 8 warmup: TP=1 80.3 tok/s
+  (12.45 ms/token, 15.3 GiB), TP=2 117.6 tok/s (8.50 ms/token, 8.2 GiB/card),
+  so **1.46x**. The speed criterion (>= 1.4x) is met.
+- Correctness is not. First-step logits agree with an independent Hugging Face
+  CPU forward to 0.23 (TP=1) and 0.19 (TP=2), same argmax, but TP=2's greedy
+  text leaves TP=1 at token 4 and degenerates into a repetition loop. Repeating
+  the collectives in fp32 changes nothing (114.5 tok/s, identical tokens), so
+  the cause is bf16 partial-sum rounding in the sharded GEMMs, not the
+  all-reduce and not a sharding error.
+- The 1.46x here is a test-model number and does not transfer to 27B. It is also
+  not the 1.45x component projection; the agreement is coincidence.
+- 26.8% of the TP=2 step does not shard (8.50 ms vs half of 12.45 ms). At the
+  measured 10 KiB collective cost, 72 collectives would be about 0.6 ms, so most
+  of that remainder is half-width GEMM efficiency, not measured communication.
 
-**Decision:** the next deliverable is one measured model number, not more
-synthetic shapes. Build the S5 block stack and then Qwen3-8B at TP=2 on this
-box, with a numeric prediction first: target at least 1.4x, consistent with the
-1.45x projection; below 1.35x means the fixed tax is worse than modelled.
-Fallback stays Mode B, not more cards. No 1.5x claim before that measurement.
+**Decision:** do not start M1 on this engine. Implement one precision change -
+keep the residual stream in fp32 and cast only at GEMM inputs - then re-run this
+exact TP=1/TP=2 comparison. If the text still diverges, use fp32 master weights
+or a different reduction strategy. Only a TP=2 run whose greedy text tracks
+TP=1 earns the model-level claim; until then the project has a latency number
+and no equivalence result.
 
 S1's original gate ambiguity remains documented in `S1.md`: one-message vs
 full roundtrip against the same 15 us number. `run3`/`run4` are its primary and

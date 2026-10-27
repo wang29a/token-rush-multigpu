@@ -27,17 +27,24 @@ M=512 and M=4096; split-K, with twice the payload, diverges lower. TP therefore
 pays at bs=1 and stops paying at large batch, so S7's batch cells must not reuse
 those timings as if they were bs=1. int4 is untested (no int4 kernel installed).
 
-An S4 capture probe then measured 64-layer chains at the production shard shape
-and a toy shape. Capture, exact correctness and additivity hold: the shard chain
+An S4 capture probe measured 64-layer chains at the production shard shape and
+a toy shape. Capture, exact correctness and additivity hold: the shard chain
 equals compute plus communication within about 2%, its 64-layer communication
 share is about 11-12%, and graphs beat eager by 3x only where the chain is
 launch-bound (the toy), not where it is weight-bound (about 1.02x). M0's kill
 criteria are not triggered, but **M0 is not cleared**: the chain used bf16
 weights rather than the production int4 kernel, and the 1.56 ms fixed term
-remains an estimate. The next measured step is the Qwen3-8B TP=2 test model,
-prediction first. No working engine exists. Computed outcomes remain `projected`,
-unmeasured inputs `estimate`; `measured` is reserved for recorded runs with raw
-artifacts. Measurements enter only through `lab/LOG.md` and `results/<date>-<box>/`.
+remains an estimate.
+
+S6 then ran Qwen3-8B itself: TP=1 80.3 tok/s, TP=2 117.6 tok/s (1.46x), one
+graph per card, logits within 0.24/0.19 of a Hugging Face CPU forward. The speed
+bar is met, but **S6 is not passed**: TP=2's greedy text leaves TP=1 at token 4
+and loops, and fp32 collectives change nothing, so the cause is bf16
+sharded-GEMM rounding rather than a structural error. M1 is blocked until the
+text matches; the next step is an fp32 residual stream. No 1.5x claim is made.
+Computed outcomes remain `projected`, unmeasured inputs `estimate`; `measured`
+is reserved for recorded runs with raw artifacts. Measurements enter only
+through `lab/LOG.md` and `results/<date>-<box>/`.
 
 ## Numbers
 

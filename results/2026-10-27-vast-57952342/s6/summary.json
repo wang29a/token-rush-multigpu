@@ -1,0 +1,131 @@
+{
+  "label": "measured decode; projection is not used here",
+  "code_commit": "07f22d1a4d7ccf8c0979e7cc08c209aefc3cf4be",
+  "script_sha256": "e69ea1e522886470ae8a6a40726c28240c5cdc16e36bf7a51217d95558fec725",
+  "model": "Qwen/Qwen3-8B bf16",
+  "prompt": "The capital of France is",
+  "tokens": 96,
+  "warmup": 8,
+  "rows": {
+    "tp1": {
+      "world": 1,
+      "tokens_per_second": 80.31902065278153,
+      "ms_per_token": 12.450351011163244,
+      "peak_gib": 15.302873611450195,
+      "all_reduces_per_token": 0
+    },
+    "tp2": {
+      "world": 2,
+      "tokens_per_second": 117.61823314070381,
+      "ms_per_token": 8.50208316599795,
+      "peak_gib": 8.236467361450195,
+      "all_reduces_per_token": 72
+    },
+    "tp2_fp32reduce": {
+      "world": 2,
+      "tokens_per_second": 114.47836733614116,
+      "ms_per_token": 8.735274823266082,
+      "peak_gib": 8.236467361450195,
+      "all_reduces_per_token": 72
+    }
+  },
+  "speedup_tp2_over_tp1": 1.4643882879145957,
+  "half_tp1_ms": 6.225175505581622,
+  "tp2_unsharded_remainder_ms": 2.2769076604163283,
+  "remainder_share_percent": 26.780585604270215,
+  "collective_time_if_8_5us_each_ms": 0.612,
+  "greedy_agreement": {
+    "tp1": 97,
+    "tp2": 24,
+    "tp2_fp32reduce": 24
+  },
+  "first_divergence_index": {
+    "tp1": null,
+    "tp2": 4,
+    "tp2_fp32reduce": 4
+  },
+  "logits_max_abs_diff_vs_tp1": {
+    "tp1": 0.0,
+    "tp2": 0.265625,
+    "tp2_fp32reduce": 0.265625
+  },
+  "logits_max_abs_diff_vs_hf": {
+    "tp1": 0.234375,
+    "tp2": 0.1875,
+    "tp2_fp32reduce": 0.1875
+  },
+  "logits_mean_abs_diff_vs_hf": {
+    "tp1": 0.03317400813102722,
+    "tp2": 0.03078038990497589,
+    "tp2_fp32reduce": 0.03078038990497589
+  },
+  "argmax": {
+    "tp1": 12095,
+    "tp2": 12095,
+    "tp2_fp32reduce": 12095,
+    "hf": 12095
+  },
+  "checks": [
+    {
+      "metric": "tp1_tokens_per_second",
+      "pred": [
+        85,
+        110
+      ],
+      "measured": 80.31902065278153,
+      "verdict": "miss (below)"
+    },
+    {
+      "metric": "tp2_tokens_per_second",
+      "pred": [
+        130,
+        160
+      ],
+      "measured": 117.61823314070381,
+      "verdict": "miss (below)"
+    },
+    {
+      "metric": "speedup",
+      "pred": [
+        1.35,
+        1.55
+      ],
+      "measured": 1.4643882879145957,
+      "verdict": "hit"
+    },
+    {
+      "metric": "tp2_ms_per_token",
+      "pred": [
+        6.2,
+        7.7
+      ],
+      "measured": 8.50208316599795,
+      "verdict": "miss (above)"
+    },
+    {
+      "metric": "logits_max_abs_diff",
+      "pred": [
+        0,
+        0.5
+      ],
+      "measured": 0.265625,
+      "verdict": "hit"
+    },
+    {
+      "metric": "greedy_agreement_tokens",
+      "pred": [
+        32,
+        97
+      ],
+      "measured": 24,
+      "verdict": "miss (below)"
+    }
+  ],
+  "gate": {
+    "speed_criterion_1_4x": true,
+    "text_equivalence_32_tokens": false,
+    "S6_passed": false,
+    "why": "the speed criterion is met, but TP2's greedy text diverges from TP1 at token 4 and degenerates into a repetition loop; fp32 collectives change nothing, and TP2 logits are as close to the Hugging Face reference as TP1's, so the cause is bf16 partial-sum rounding in the sharded GEMMs, not a structural error",
+    "decision": "report the measured speed, do not call S6 passed. Next bounded step: fp32 residual stream (accumulate h in fp32, cast only for GEMM inputs), then re-run TP1/TP2 text agreement before M1."
+  }
+}
