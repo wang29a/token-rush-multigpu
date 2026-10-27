@@ -67,8 +67,10 @@ class NativeNccl:
             raise RuntimeError(self.lib.ncclGetErrorString(code).decode())
 
     def all_reduce(self, tensor, stream):
+        import torch
+        dtype = {torch.bfloat16: 9, torch.float32: 7}[tensor.dtype]
         self.check(self.lib.ncclAllReduce(tensor.data_ptr(), tensor.data_ptr(), tensor.numel(),
-                                         9, 0, self.comm, stream.cuda_stream))
+                                         dtype, 0, self.comm, stream.cuda_stream))
 
     def close(self):
         self.check(self.lib.ncclCommDestroy(self.comm))
@@ -114,6 +116,8 @@ class Shard:
             p = f"model.layers.{i}."
             w[("ln1", i)] = self.get(p + "input_layernorm.weight")
             w[("ln2", i)] = self.get(p + "post_attention_layernorm.weight")
+            w[("q_norm", i)] = self.get(p + "self_attn.q_norm.weight")
+            w[("k_norm", i)] = self.get(p + "self_attn.k_norm.weight")
             w[("q", i)] = self.get(p + "self_attn.q_proj.weight", rows=self.q_rows)
             w[("k", i)] = self.get(p + "self_attn.k_proj.weight", rows=self.kv_rows)
             w[("v", i)] = self.get(p + "self_attn.v_proj.weight", rows=self.kv_rows)
@@ -124,7 +128,7 @@ class Shard:
         return w
 
 
-def build(rank, world, device, max_len, native, stream):
+def build(rank, world, device, max_len, native, stream, reduce_fp32=False):
     import torch
     w = Shard(MODEL, rank, world, device).load()
     idx = torch.arange(max_len, device=device, dtype=torch.float32)
@@ -146,11 +150,17 @@ def build(rank, world, device, max_len, native, stream):
     scale = HEAD_DIM ** -0.5
 
     def rmsnorm(x, weight):
-        return x * torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + EPS) * weight
+        # HF Qwen3 normalises in float32 and casts back; match it.
+        y = x.float()
+        y = y * torch.rsqrt(y.pow(2).mean(dim=-1, keepdim=True) + EPS)
+        return y.to(torch.bfloat16) * weight
 
     def rope(t, c, s):
-        x1, x2 = t[..., :HEAD_DIM // 2], t[..., HEAD_DIM // 2:]
-        return t * c + torch.cat([-x2, x1], dim=-1) * s
+        # float32 rotation, then back to bf16: cos/sin rounding otherwise costs
+        # more than the arithmetic saves at this size.
+        y = t.float()
+        x1, x2 = y[..., :HEAD_DIM // 2], y[..., HEAD_DIM // 2:]
+        return (y * c.float() + torch.cat([-x2, x1], dim=-1) * s.float()).to(torch.bfloat16)
 
     def step():
         h = w["embed"].index_select(0, token)
@@ -158,8 +168,8 @@ def build(rank, world, device, max_len, native, stream):
         s = sin.index_select(0, pos).view(1, 1, HEAD_DIM)
         for i in range(LAYERS):
             n1 = rmsnorm(h, w[("ln1", i)])
-            q = rope((n1 @ w[("q", i)].T).view(1, hq, HEAD_DIM), c, s)
-            k = rope((n1 @ w[("k", i)].T).view(1, hkv, HEAD_DIM), c, s)
+            q = rope(rmsnorm((n1 @ w[("q", i)].T).view(1, hq, HEAD_DIM), w[("q_norm", i)]), c, s)
+            k = rope(rmsnorm((n1 @ w[("k", i)].T).view(1, hkv, HEAD_DIM), w[("k_norm", i)]), c, s)
             v = (n1 @ w[("v", i)].T).view(1, hkv, HEAD_DIM)
             k_cache[i].index_copy_(0, pos, k)
             v_cache[i].index_copy_(0, pos, v)
@@ -169,13 +179,23 @@ def build(rank, world, device, max_len, native, stream):
             attn = torch.einsum("bghl,lgd->bghd", probs, v_cache[i]).reshape(1, hq * HEAD_DIM)
             o = attn @ w[("o", i)].T
             if native is not None:
-                native.all_reduce(o, stream)
+                if reduce_fp32:
+                    o32 = o.float()
+                    native.all_reduce(o32, stream)
+                    o = o32.to(torch.bfloat16)
+                else:
+                    native.all_reduce(o, stream)
             h = h + o
             n2 = rmsnorm(h, w[("ln2", i)])
             g = torch.nn.functional.silu(n2 @ w[("gate", i)].T) * (n2 @ w[("up", i)].T)
             d = g @ w[("down", i)].T
             if native is not None:
-                native.all_reduce(d, stream)
+                if reduce_fp32:
+                    d32 = d.float()
+                    native.all_reduce(d32, stream)
+                    d = d32.to(torch.bfloat16)
+                else:
+                    native.all_reduce(d, stream)
             h = h + d
         h = rmsnorm(h, w["norm"])
         return h @ w["lm_head"].T
@@ -230,10 +250,10 @@ def benchmark(m, args, prompt_ids, native, rank, out, dist=None):
 
         def sample():
             dist.all_gather_into_tensor(gather_buf, logits_buf)
-            torch.argmax(gather_buf.view(1, -1), dim=-1, keepdim=True, out=tok_buf)
+            torch.argmax(gather_buf.view(1, -1), dim=-1, out=tok_buf)
     else:
         def sample():
-            torch.argmax(logits_buf, dim=-1, keepdim=True, out=tok_buf)
+            torch.argmax(logits_buf, dim=-1, out=tok_buf)
 
     with torch.no_grad():
         for p, t in enumerate(prompt_ids):
@@ -310,7 +330,7 @@ def worker(rank, args, uid, prompt_ids):
                             device_id=torch.device(f"cuda:{rank}"))
     torch.cuda.set_stream(torch.cuda.Stream())
     native = NativeNccl(uid, rank)
-    m = build(rank, 2, f"cuda:{rank}", args.max_len, native, torch.cuda.current_stream())
+    m = build(rank, 2, f"cuda:{rank}", args.max_len, native, torch.cuda.current_stream(), args.reduce_fp32)
     benchmark(m, args, prompt_ids, native, rank, out, dist)
     native.close()
     dist.destroy_process_group()
@@ -324,7 +344,7 @@ def tp1(args, prompt_ids):
     out.mkdir(parents=True, exist_ok=False)
     write_meta(args, prompt_ids, out)
     torch.cuda.set_stream(torch.cuda.Stream())
-    m = build(0, 1, "cuda:0", args.max_len, None, torch.cuda.current_stream())
+    m = build(0, 1, "cuda:0", args.max_len, None, torch.cuda.current_stream(), False)
     benchmark(m, args, prompt_ids, None, 0, out, None)
     (out / "finished.json").write_text(json.dumps({"finished_utc": datetime.now(timezone.utc).isoformat()}) + "\n")
 
@@ -334,6 +354,7 @@ def tp2(args, prompt_ids):
     import torch.multiprocessing as mp
     out = Path(args.output).resolve()
     out.mkdir(parents=True, exist_ok=False)
+    args.output = str(out)          # workers must see an absolute path for the file:// rendezvous
     write_meta(args, prompt_ids, out)
     uid = torch.cuda.nccl.unique_id()
     os.environ.setdefault("OMP_NUM_THREADS", "1")
@@ -350,6 +371,8 @@ def main():
     p.add_argument("--warmup", type=int, default=8)
     p.add_argument("--max-len", type=int, default=256)
     p.add_argument("--prompt", default="The capital of France is")
+    p.add_argument("--reduce-fp32", action="store_true",
+                   help="cast the two per-layer partials to fp32 for the all-reduce")
     args = p.parse_args()
     from tokenizers import Tokenizer
     tok = Tokenizer.from_file(str(MODEL / "tokenizer.json"))
