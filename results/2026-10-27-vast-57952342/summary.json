@@ -1,0 +1,91 @@
+{
+  "label": "measured",
+  "primary_run": "run3",
+  "confirmation_run": "run4",
+  "code_commit": "15314bc51c5f8f95a1044c86594992ac95802c77",
+  "script_sha256": "827ab27181644a3ec988964075e9120e12602e26cf2c613c969b45408d68685c",
+  "gpu": [
+    "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32119MB, multi_processor_count=170, uuid=7e830f1b-8d05-dc6f-8719-6d7108060007, pci_bus_id=129, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)",
+    "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32119MB, multi_processor_count=170, uuid=695dd04d-9a84-aa7b-e2a3-6417fb4c0738, pci_bus_id=194, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)"
+  ],
+  "p2p": {
+    "0->1": false,
+    "1->0": false
+  },
+  "graph_copy_10KiB_us": [
+    7.039103984832764,
+    11.054304122924805
+  ],
+  "graph_rtt_10KiB_us": [
+    20.27814483642578,
+    19.004512786865234
+  ],
+  "graph_half_rtt_proxy_10KiB_us": [
+    10.13907241821289,
+    9.502256393432617
+  ],
+  "graph_copy_256MiB_decimal_GBs": [
+    44.25178386083675,
+    44.2571135618455
+  ],
+  "graph_broadcast_10KiB_us": [
+    10.851072311401367,
+    10.841952323913574
+  ],
+  "confirmation": [
+    {
+      "kind": "copy",
+      "src": 0,
+      "primary_us": 7.039103984832764,
+      "confirmation_us": 6.934879779815674,
+      "change_percent": -1.4806459066617372,
+      "within_predicted_tolerance": true
+    },
+    {
+      "kind": "copy",
+      "src": 1,
+      "primary_us": 11.054304122924805,
+      "confirmation_us": 11.166336059570312,
+      "change_percent": 1.0134689203382008,
+      "within_predicted_tolerance": true
+    },
+    {
+      "kind": "roundtrip",
+      "src": 0,
+      "primary_us": 20.27814483642578,
+      "confirmation_us": 19.586271286010742,
+      "change_percent": -3.4119173918327195,
+      "within_predicted_tolerance": true
+    },
+    {
+      "kind": "roundtrip",
+      "src": 1,
+      "primary_us": 19.004512786865234,
+      "confirmation_us": 19.452415466308594,
+      "change_percent": 2.356822742401077,
+      "within_predicted_tolerance": true
+    }
+  ],
+  "empirical_crossover": [
+    {
+      "src": 0,
+      "small_floor_us": 11.192480087280273,
+      "lower_bytes": 262144,
+      "upper_bytes": 1048576
+    },
+    {
+      "src": 1,
+      "small_floor_us": 11.945759773254395,
+      "lower_bytes": 262144,
+      "upper_bytes": 1048576
+    }
+  ],
+  "gate": {
+    "one_way_copy_le_15us": true,
+    "half_rtt_proxy_le_15us": true,
+    "full_rtt_le_15us": false,
+    "p2p_enabled_variant": "unavailable",
+    "unqualified_S1_pass": false,
+    "M0": "NOT EVALUATED: no all-reduce or synthetic chain in S1"
+  }
+}

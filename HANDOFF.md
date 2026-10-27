@@ -5,8 +5,10 @@
 
 ## Current status
 
-**The plan is complete. Zero lines of code, zero measurements.** The repository
-contains documentation only.
+**S1 data collection completed with qualifications on 2026-10-27.** The
+repository now contains the link probe, generated report and raw measurements.
+Read `lab/LOG.md` and `results/2026-10-27-vast-57952342/S1.md`. No all-reduce or
+model measurements exist yet. M0 is not evaluated.
 
 ## Settled decisions (not open for discussion)
 
@@ -22,22 +24,42 @@ contains documentation only.
 5. **Code is written on the rented machine** (`/workspace/lab/`). This repository
    holds the plan, the stage code, the logs and the result summaries.
 
-## Next: S1 (one hour, four numbers)
+## Next: resolve the communication gate, before model work
 
-Once on the machine, answer one question: **what does a 10 KB round trip between
-the two cards cost, in microseconds?**
+S1 code is `lab/01_link.py`; generate measured tables with `lab/report_s1.py`.
+`run3` is the full sweep and `run4` the bounded confirmation. Both complete
+all variants, correctness checks and teardown normally. `run1`/`run2` retain
+capture-isolation and graph/NCCL teardown mistakes; they are diagnostic only.
+The code commit and source hash are in every run's metadata.
 
-1. `nvidia-smi topo -m` (PIX / PXB / SYS)
-2. `nvidia-smi -q -d POWER` (power cap)
-3. `torch.cuda.can_device_access_peer(0, 1)`
-4. A timed 10 KB `copy_` (a rough L)
+- Runtime peer access is unavailable in both directions; P2P-on was not tested.
+- One-way graph copy and half-roundtrip proxy meet 15 us. Full roundtrip does
+  not. Exact generated measurements, repeats and size sweep are in `lab/LOG.md`.
+- The original documents conflict: the lab calls S1 one-message latency,
+  while this handoff originally called it roundtrip latency. Do not silently
+  replace roundtrip with half-roundtrip or claim an unqualified S1 pass.
+- Copy graphs work after explicitly forking and joining the remote stream.
+  NCCL graph executables must be reset, including releasing bound replay
+  methods, before process-group destruction.
 
-**Prediction (write it down before running):** L ≈ 5–10 µs, bandwidth ≈
-25–50 GB/s.
-**Pass criterion:** L ≤ 15 µs. If the board is x8/x8, or L > 20 µs, destroy the
-instance and rent elsewhere. Do not compromise on this. Fifteen microseconds is
-the stage gate; the M0 project gate in `docs/multigpu.md` is stricter (12 µs), so
-a result between 12 and 15 µs passes S1 and still rules out Mode A.
+The next bounded investigation is **NCCL all-reduce inside a graph (the S2
+baseline)**, to resolve the actual primitive's cost. Write a new numeric
+prediction first. This is a descent into the communication cause, not clearance
+for S3 or model implementation. S1 copy/broadcast times cannot be used as M0's
+all-reduce L. M0 additionally requires the synthetic chain/capture check.
+
+S1's one-message gate is 15 us; M0's actual all-reduce gate is 12 us.
+If M0 fails, Mode B remains the fallback. No driver patching or automatic
+instance destruction. Do not add cards to evade a failed gate.
+
+## Backup on this instance
+
+This is an interruptible/spot instance; `/workspace` is **not** a persistent
+volume. At checkpoints, commit and push code, pre-run predictions, raw
+artifacts and the generated report. Verify local HEAD against the remote.
+Keep weights, caches, virtual environments, credentials and rendezvous files
+out of Git. If authentication blocks push, say so explicitly and produce a
+Git bundle; a local commit/bundle alone is not an off-instance backup.
 
 ## Do not
 
@@ -57,8 +79,9 @@ a result between 12 and 15 µs passes S1 and still rules out Mode A.
 | `docs/multigpu.md` | Project plan: the 1.5× accounting, L is everything, kill criteria |
 | `HANDOFF.md` | This file |
 
-## The first log entry
+## Existing log and artifacts
 
-Following the template in `docs/multigpu-lab.md` §5, create `lab/LOG.md` on the
-machine. The first entry is S1. When the run is done, copy that section and the
-raw logs back and commit them to this repository.
+`lab/LOG.md` is generated from recorded JSONL rows. Do not retype measured
+numbers. The original pre-run prediction is `prediction.json` in the result
+directory. Fix and repeat predictions were also written before those runs;
+failed predictions and failed variants remain in the artifacts.

@@ -1,0 +1,5 @@
+{
+  "at_utc": "2026-10-27T11:19:42.350456+00:00",
+  "pid": 7066,
+  "reason": "All broadcast rows written; worker stalled in communicator destruction with graph replay bound method still alive. Diagnostic run only; rerun after releasing graph references."
+}

@@ -1,0 +1,18 @@
+{
+  "written_at_utc": "2026-10-27T11:21:21.979669+00:00",
+  "reason": "Directional graph copy differences and ambiguous S1 one-way vs RTT gate warrant a bounded repeat; report both runs, never choose fastest.",
+  "prediction": "10 KiB graph copy medians within 25% of run3 in each direction, dependent roundtrip within 20%; 256 MiB bandwidth within 10%. Graph capture and NCCL teardown complete normally.",
+  "parameters": {
+    "sizes_bytes": [
+      64,
+      10240,
+      262144,
+      1048576,
+      268435456
+    ],
+    "samples": 7,
+    "warmup": 10
+  },
+  "primary_run": "run3",
+  "confirmation_run": "run4"
+}

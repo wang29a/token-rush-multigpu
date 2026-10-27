@@ -10,8 +10,33 @@ changes a single variable and records the same five entries: baseline,
 optimization, number, bottleneck, next step. The purpose is to develop judgement
 about multi-GPU inference rather than to collect conclusions.
 
-> **Status: planning. No code and no measurements.** The first table will appear
-> here once S1 produces a number.
+> **Status: S1 link measurements recorded, 2026-10-27.** Peer access is
+> unavailable on this box. Cross-device copy and NCCL broadcast graphs work.
+> S1 is complete with qualifications; M0 is not evaluated. No model or
+> all-reduce performance is measured yet.
+
+<!-- S1_RESULTS_START -->
+
+Measured on 2026-10-27, vast-57952342, 2 x RTX 5090; primary run3.
+Code `15314bc`; seven samples per cell. Both GPUs
+have Gen5 x16 links; runtime peer access is false in both directions.
+
+| graph component | origin GPU 0 | origin GPU 1 |
+|---|---:|---:|
+| 10 KiB one-way copy (us) | 7.039 | 11.054 |
+| 10 KiB full round trip (us) | 20.278 | 19.005 |
+| 10 KiB NCCL broadcast (us, max rank) | 10.851 | 10.842 |
+| 256 MiB one-way copy (decimal GB/s) | 44.252 | 44.257 |
+
+One-way copy meets 15 us; full round trip does not. P2P-on is unavailable.
+The source documents use conflicting S1 latency definitions, so this is
+**complete with qualifications**, not an unqualified S1 pass. M0 requires
+in-graph all-reduce measurements; copy/broadcast cannot clear it.
+
+[Full log](lab/LOG.md) · [Raw results and report](results/2026-10-27-vast-57952342/S1.md) ·
+[Generated size sweep](results/2026-10-27-vast-57952342/matrix.csv). run4 confirmation is included.
+
+<!-- S1_RESULTS_END -->
 
 ## Documents
 
@@ -31,9 +56,10 @@ repository — write the prediction before the measurement, report the fraction 
 the roofline wall, account for bytes, and capture the step in a graph — and
 produced every single-card figure quoted here.
 
-The multi-GPU plan, the eleven-stage ladder, and all multi-GPU numbers are
-original to this repository. **No multi-GPU number here has been measured.** Each
-is a projection and is labelled as one. This repository is an independent
+The multi-GPU plan, the eleven-stage ladder, and multi-GPU experiments are
+original to this repository. **S1 link results are measured; all engine numbers
+remain projections.** The recorded runs, predictions and raw artifacts are in
+`lab/LOG.md` and `results/`. This repository is an independent
 personal experiment; it is not an official token-rush project and carries no
 endorsement from it.
 
@@ -80,9 +106,10 @@ two documents listed above.
 - Write the prediction first, then run. If the prediction is wrong, state where
   it was wrong.
 - Nothing that cannot be measured enters the conclusions.
-- Code runs on rented machines (`/workspace/lab/`). After each stage, copy
-  `LOG.md`, the stage code and the raw results back; destroying the instance destroys everything
-  on it.
+- Code runs on rented machines (stage code in this checkout's `lab/`). After
+  each stage, commit and push `LOG.md`, the stage code and raw results; verify
+  the remote commit. This development instance is interruptible and has no
+  persistent workspace volume.
 
 ## License
 

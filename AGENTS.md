@@ -12,10 +12,13 @@ Accounting and falsifiers are in `docs/multigpu.md`.
 
 ## Stage
 
-Planning. No stage code and no multi-GPU measurements yet. Until a run is
-recorded, computed outcomes are `projected` and unmeasured inputs are
-`estimate`; `measured` is reserved for runs. Measurements enter only through
-`lab/LOG.md` and `results/<date>-<box>/`.
+S1 link measurements recorded on 2026-10-27; see `lab/LOG.md`. Code and raw
+results now exist. S1 is complete with qualifications: peer access is
+unavailable, one-way copy and half-RTT meet 15 us, but full RTT does not.
+Do not call this an unqualified stage pass or M0 clearance. No engine or
+all-reduce measurements yet. Computed outcomes remain `projected` and
+unmeasured inputs `estimate`; `measured` is reserved for recorded runs.
+Measurements enter only through `lab/LOG.md` and `results/<date>-<box>/`.
 
 ## Numbers
 
@@ -48,6 +51,11 @@ recorded, computed outcomes are `projected` and unmeasured inputs are
 | `results/<date>-<box>/` | Raw logs and artifacts behind those entries |
 
 Weights, caches and credentials stay out of git.
+
+The development instance is interruptible and `/workspace` is not a persistent
+volume. Commit and push code, predictions and results at stage checkpoints;
+verify the remote commit. A local commit is not an off-instance backup. If
+authentication fails, report the failure and retain a Git bundle for recovery.
 
 ## Method
 

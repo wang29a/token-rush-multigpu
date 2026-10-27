@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "/workspace/token-rush-multigpu/lab/01_link.py", line 103, in copy_worker
+    op()
+  File "/workspace/token-rush-multigpu/lab/01_link.py", line 88, in op
+    b.copy_(a, non_blocking=True)
+torch.AcceleratorError: CUDA error: dependency created on uncaptured work in another stream
+Search for `cudaErrorStreamCaptureIsolation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/token-rush-multigpu/lab/01_link.py", line 317, in <module>
+    main()
+  File "/workspace/token-rush-multigpu/lab/01_link.py", line 310, in main
+    copy_worker(args)
+  File "/workspace/token-rush-multigpu/lab/01_link.py", line 101, in copy_worker
+    with torch.cuda.graph(graph, stream=streams[args.src]):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/torch/cuda/graphs.py", line 265, in __exit__
+    self.cuda_graph.capture_end()
+  File "/workspace/token-rush-multigpu/.venv/lib/python3.12/site-packages/torch/cuda/graphs.py", line 126, in capture_end
+    super().capture_end()
+torch.AcceleratorError: CUDA error: operation failed due to a previous error during capture
+Search for `cudaErrorStreamCaptureInvalidated' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
