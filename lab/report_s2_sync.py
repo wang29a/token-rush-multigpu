@@ -15,6 +15,11 @@ import statistics
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _final(text):
+    """One trailing newline; no trailing blank line."""
+    return text.rstrip("\n") + "\n"
 RUNS = ("run4", "run5")
 VARIANTS = ("wait_each", "wait_tail", "same_stream", "wait_each_consumer",
             "same_stream_consumer", "local_consumer")
@@ -370,9 +375,12 @@ S2 numbers themselves stand unchanged.
 **Next step:** one bounded synthetic M0 chain - per layer, a GEMV-shaped
 compute block, the 10 KiB all-reduce and an RMSNorm-shaped block, captured with
 the consumer-style dependency - with a new numeric prediction written before
-the run. If that chain also stays at or below 12 us per layer, Mode A earns a
-model implementation; if not, the fallback is Mode B, not more cards. No model
-work and no 1.5x claim before that measurement.
+the run. The 12 us gate applies to L, the collective, not to a whole layer. The
+chain's check is whether capture holds at 64 layers and whether the measured
+step reproduces the component model (measured per-layer compute plus measured
+communication) within a stated tolerance. If it does, Mode A earns a model
+implementation; if not, the fallback is Mode B, not more cards. No model work
+and no 1.5x claim before that measurement.
 
 **Reproduction:**
 
@@ -394,7 +402,10 @@ both runs produce identical capture structure.
     old = log.read_text().rstrip()
     marker = "## S2-sync —"
     head = old.split(marker, 1)[0].rstrip() if marker in old else old
-    log.write_text(re.sub(r"\n{3,}", "\n\n", head + "\n\n" + body))
+    later = ""
+    if "## S4 —" in old:
+        later = "\n\n## S4 —" + old.split("## S4 —", 1)[1]
+    log.write_text(_final(re.sub(r"\n{3,}", "\n\n", head + "\n\n" + body + later)))
 
     index = ["S2-sync cause probe measured on 2026-10-27, same 2 x RTX 5090 box.",
              f"Code `{commit[:7]}`. BF16 SUM, nine samples; max rank per sample.", "",
@@ -407,8 +418,8 @@ both runs produce identical capture structure.
              "The S2 chain cost was a capture-time dependency artifact: the wait-each graph",
              f"had {struct['wait_each']['edges']} edges against {struct['wait_tail']['edges']} for tail-wait, growing",
              "with depth. A dependent chain with a real consumer stays near 10.2 us and is flat",
-             "in depth, so the 'stop this NCCL path' decision was withdrawn. **M0 is still",
-             "uncleared**: no synthetic GEMV/collective/norm chain exists yet.",
+             "in depth, so the 'stop this NCCL path' decision was withdrawn. **M0 remains",
+             "uncleared**; the S4 chain below uses bf16 weights, not the int4 production layer.",
              f"[S2-sync report]({base.relative_to(ROOT)}/S2-sync.md) · [Full data]({base.relative_to(ROOT)}/matrix.csv)."]
     readme = ROOT / "README.md"
     text = readme.read_text()
@@ -422,7 +433,7 @@ both runs produce identical capture structure.
         text = text.replace("<!-- S2_RESULTS_END -->", "<!-- S2_RESULTS_END -->\n\n" + block, 1)
     else:
         text = text.replace("## Documents", block + "\n\n## Documents", 1)
-    readme.write_text(text)
+    readme.write_text(_final(text))
     print(json.dumps({"summary": str(base / "summary.json"),
                       "report": str(base / "S2-sync.md"),
                       "checks": {"hits": len(checks) - len(misses), "cells": len(checks)}}, indent=2))

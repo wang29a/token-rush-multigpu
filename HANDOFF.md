@@ -5,12 +5,15 @@
 
 ## Current status
 
-**S1, S2 and the S2-sync cause probe are recorded (2026-10-27).** Read
-`lab/LOG.md`, `results/2026-10-27-vast-57952342/S1.md`, its `s2/S2.md` and its
-`s2-sync/S2-sync.md`. S2-sync withdrew S2's "stop this NCCL path" decision: the
-128-operation chain miss came from capture-time graph structure, not transport,
-and a dependent chain with a per-step consumer stays under 12 us. M0 still
-remains uncleared, and no model or synthetic GEMV/collective/norm chain was run.
+**S1, S2, the S2-sync cause probe and the S4 64-layer chain are recorded
+(2026-10-27).** Read `lab/LOG.md`, `results/2026-10-27-vast-57952342/S1.md`, its
+`s2/S2.md`, `s2-sync/S2-sync.md` and `s4/S4.md`. S2-sync withdrew S2's "stop this
+NCCL path" decision: the 128-operation chain miss came from capture-time graph
+structure, not transport. S4 then captured 64-layer chains in one graph per
+card: exact correctness, additivity within about 2%, 64-layer communication
+share about 11-12%, and M0's kill criteria not triggered - but M0 is not
+cleared because the chain is bf16 rather than the production int4 kernel. No
+model has been run.
 
 ## Settled decisions (not open for discussion)
 
@@ -26,39 +29,33 @@ remains uncleared, and no model or synthetic GEMV/collective/norm chain was run.
 5. **Code is written on the rented machine** (`/workspace/lab/`). This repository
    holds the plan, the stage code, the logs and the result summaries.
 
-## Next: measure the synthetic M0 chain, once
+## Next: the Qwen3-8B test model at TP=2
 
-S2-sync code is `lab/02_sync_probe.py`; generate its tables with
-`lab/report_s2_sync.py`. `run4`/`run5` are the complete forward and
-reverse-order measurements; `run1` (debug-mode graph-lifetime leak) and
-`run2`/`run3` (Python 3.12 `init_rank` failure) are withdrawn or failed
-diagnostics and must not be promoted. Exact numbers are generated in the log,
-never retyped.
+S4 code is `lab/03_block_chain.py`; generate its tables with `lab/report_s4.py`.
+`run1`/`run2` are the complete forward and reverse-order measurements; all 16
+variant runs exited cleanly. Exact numbers are generated in the log, never
+retyped.
 
-- The S2 wait-each chain is a capture artifact, not a link limit: it was the
-  only variant whose per-step cost grew with depth, and its DOT dump carries a
-  far denser dependency graph than tail-wait, same-stream or the consumer
-  variants. The stop decision is withdrawn; the S2 numbers themselves stand.
-- A dependent 10 KiB chain with a per-step consumer costs about 10.2 us both via
-  same-stream native NCCL and via ProcessGroup with per-step waits, so the
-  result does not depend on the native communicator. It is flat in depth.
-- That meets the 12 us component budget but does not clear M0. The consumer is
-  one elementwise multiply; a real layer adds GEMV and RMSNorm compute whose
-  overlap with the all-reduce is unmeasured.
-- Decomposition, to be checked, not assumed: communication about 8.4 us/step,
-  the local multiply about 0.8 us, and roughly 1.1 us/step of serialization that
-  neither term contains. The projection in the log charges that residual
-  explicitly.
-- Full S2's one-shot >=2x criterion remains unevaluated: peer access is false
-  and no host-staged one-shot was implemented or measured.
+- Capture holds at 64 layers and every replay is bit-identical to a
+  no-collective reference. Additivity holds: the shard chain equals compute
+  plus communication within about 2%.
+- The shard chain is weight-read bound, so eager and graphed costs are nearly
+  equal (about 1.02x). Graphs are a 3x lever only on the launch-bound toy chain.
+  Do not repeat the claim that graphs are a 3x lever for the production shape.
+- The 64-layer communication share is about 11-12%, comfortably under S5's 25%
+  criterion, and it is a conservative bound: the production layer has more
+  compute than the one-GEMV-per-layer chain.
+- M0's kill criteria (L > 12 us, capture failure) are not triggered, but M0 is
+  **not** declared cleared: the probe used bf16 weights, not the int4 4.25 bpw
+  kernel, and the 1.56 ms fixed term is still an estimate from the single-card
+  engine. The projection at the measured L is 6.82 ms, 146.6 tok/s, 1.45x
+  upstream - projected, not measured.
 
-**Decision:** one bounded synthetic M0 chain is the next experiment - a
-GEMV-shaped block, the 10 KiB all-reduce and an RMSNorm-shaped block per layer,
-captured with the consumer-style dependency, numeric prediction first, at most
-two complete runs. If it holds at or below 12 us per layer, Mode A earns model
-implementation; if not, the fallback is Mode B, not more cards. No model work
-and no 1.5x claim before that measurement. No automatic instance destruction or
-driver patching.
+**Decision:** the next deliverable is one measured model number, not more
+synthetic shapes. Build the S5 block stack and then Qwen3-8B at TP=2 on this
+box, with a numeric prediction first: target at least 1.4x, consistent with the
+1.45x projection; below 1.35x means the fixed tax is worse than modelled.
+Fallback stays Mode B, not more cards. No 1.5x claim before that measurement.
 
 S1's original gate ambiguity remains documented in `S1.md`: one-message vs
 full roundtrip against the same 15 us number. `run3`/`run4` are its primary and

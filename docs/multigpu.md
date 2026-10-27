@@ -1,11 +1,14 @@
 # Multi-GPU — one stream, two cards
 
 **Status: proposal, 2026-10-25. Multi-GPU performance numbers in this file are
-projections.** S1 link, S2 NCCL and the S2-sync capture-structure measurements were recorded on
-2026-10-27 in [`../lab/LOG.md`](../lab/LOG.md). The isolated all-reduce and a
-dependent chain with a per-step consumer stay within the component threshold; the
-earlier 128-operation miss was a capture-time artifact. M0 remains uncleared:
-no synthetic GEMV/collective/norm chain exists yet.
+projections.** S1 link, S2 NCCL, the S2-sync capture-structure probe and the S4 64-layer chain
+were recorded on 2026-10-27 in [`../lab/LOG.md`](../lab/LOG.md). The isolated
+all-reduce and a dependent consumer chain stay within the component threshold;
+the earlier 128-operation miss was a capture-time artifact. The 64-layer shard
+chain captures in one graph per card, is bit-exact, and equals compute plus
+communication within about 2%, with an 11-12% communication share. M0's kill
+criteria are not triggered, but M0 is not cleared: the chain is bf16, not the
+production int4 kernel, and the fixed term is estimated.
 The
 single-card engine is closed (phases 0–5, `docs/progress.md` step 35). This is
 the plan for testing the same thesis one level up, and it is written to be

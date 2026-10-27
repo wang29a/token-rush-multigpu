@@ -10,6 +10,11 @@ import subprocess
 import re
 
 ROOT=Path(__file__).resolve().parents[1]
+
+
+def _final(text):
+    """One trailing newline; no trailing blank line."""
+    return text.rstrip("\n") + "\n"
 RUNS=("default1","default2","ring-ll1","tree-ll1","ring-simple1")
 
 
@@ -243,7 +248,7 @@ References: [PyTorch collectives](https://docs.pytorch.org/docs/2.11/distributed
     later=""
     if "## S2-sync —" in old:later="\n\n## S2-sync —"+old.split("## S2-sync —",1)[1]
     text=old.split(marker,1)[0].rstrip()+"\n\n"+body+later
-    log.write_text(re.sub(r"\n{3,}","\n\n",text))
+    log.write_text(_final(re.sub(r"\n{3,}","\n\n",text)))
     index=["S2 NCCL baseline measured on 2026-10-27, same 2 x RTX 5090 box.",
            f"Code `{summary['code_commit'][:7]}`. BF16 SUM, nine samples; max rank per sample.","",
            "| default all-reduce component | 10 KiB | 80 KiB |",
@@ -264,7 +269,7 @@ References: [PyTorch collectives](https://docs.pytorch.org/docs/2.11/distributed
         text=before+start+"\n\n"+"\n".join(index)+"\n\n"+end+after
     else:
         text=text.replace("## Documents",start+"\n\n"+"\n".join(index)+"\n\n"+end+"\n\n## Documents",1)
-    readme.write_text(text)
+    readme.write_text(_final(text))
     print(json.dumps(summary,indent=2))
 
 

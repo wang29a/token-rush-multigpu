@@ -162,9 +162,12 @@ S2 numbers themselves stand unchanged.
 **Next step:** one bounded synthetic M0 chain - per layer, a GEMV-shaped
 compute block, the 10 KiB all-reduce and an RMSNorm-shaped block, captured with
 the consumer-style dependency - with a new numeric prediction written before
-the run. If that chain also stays at or below 12 us per layer, Mode A earns a
-model implementation; if not, the fallback is Mode B, not more cards. No model
-work and no 1.5x claim before that measurement.
+the run. The 12 us gate applies to L, the collective, not to a whole layer. The
+chain's check is whether capture holds at 64 layers and whether the measured
+step reproduces the component model (measured per-layer compute plus measured
+communication) within a stated tolerance. If it does, Mode A earns a model
+implementation; if not, the fallback is Mode B, not more cards. No model work
+and no 1.5x claim before that measurement.
 
 **Reproduction:**
 

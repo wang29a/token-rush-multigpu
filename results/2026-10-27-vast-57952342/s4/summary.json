@@ -1,0 +1,391 @@
+{
+  "label": "measured components; the model step below is projected",
+  "code_commit": "473853db8f0336862c3598437173edd3fbe24390",
+  "script_sha256": "388bdea0a5caaf5b60b6a8ced418edc6a5c89cee122cff301aa1780bea7624c6",
+  "shapes": {
+    "toy": {
+      "layers": 64,
+      "hidden": 512,
+      "half_n": 512
+    },
+    "shard": {
+      "layers": 64,
+      "hidden": 5120,
+      "half_n": 8704
+    }
+  },
+  "runs": {
+    "run1": {
+      "finished_utc": "2026-10-27T12:10:44.901216+00:00",
+      "variants": [
+        "graph_chain",
+        "graph_compute",
+        "graph_comm",
+        "eager_chain",
+        "graph_chain",
+        "graph_compute",
+        "graph_comm",
+        "eager_chain"
+      ],
+      "reversed_order": false
+    },
+    "run2": {
+      "finished_utc": "2026-10-27T12:11:13.634012+00:00",
+      "variants": [
+        "eager_chain",
+        "graph_comm",
+        "graph_compute",
+        "graph_chain",
+        "eager_chain",
+        "graph_comm",
+        "graph_compute",
+        "graph_chain"
+      ],
+      "reversed_order": true
+    }
+  },
+  "metrics": {
+    "toy": {
+      "chain_us_per_layer": {
+        "run1": 14.73039984703064,
+        "run2": 14.59449976682663
+      },
+      "compute_us_per_layer": {
+        "run1": 7.541599869728088,
+        "run2": 7.540500164031982
+      },
+      "comm_us_per_layer": {
+        "run1": 6.27560019493103,
+        "run2": 6.243199855089188
+      },
+      "eager_us_per_layer": {
+        "run1": 45.842890625,
+        "run2": 49.8110625
+      },
+      "sum_of_parts": {
+        "run1": 13.817200064659119,
+        "run2": 13.78370001912117
+      },
+      "residual_percent": {
+        "run1": 6.609152202313795,
+        "run2": 5.882308426479788
+      },
+      "comm_share_percent": {
+        "run1": 42.603053957127095,
+        "run2": 42.777758435270336
+      },
+      "eager_over_graph": {
+        "run1": 3.1121280549788355,
+        "run2": 3.413002384173577
+      },
+      "chain_ms_per_pass": {
+        "run1": 0.942745590209961,
+        "run2": 0.9340479850769043
+      },
+      "effective_GBs": {
+        "run1": 35.59224497939791,
+        "run2": 35.92367044958329
+      },
+      "gemv_GBs": {
+        "run1": 69.51946656630341,
+        "run2": 69.52960527749102
+      }
+    },
+    "shard": {
+      "chain_us_per_layer": {
+        "run1": 73.81319999694824,
+        "run2": 73.83000254631042
+      },
+      "compute_us_per_layer": {
+        "run1": 63.88779878616333,
+        "run2": 63.88469934463501
+      },
+      "comm_us_per_layer": {
+        "run1": 8.277300000190735,
+        "run2": 8.660899847745895
+      },
+      "eager_us_per_layer": {
+        "run1": 75.3129375,
+        "run2": 75.0935625
+      },
+      "sum_of_parts": {
+        "run1": 72.16509878635406,
+        "run2": 72.5455991923809
+      },
+      "residual_percent": {
+        "run1": 2.283792634266879,
+        "run2": 1.7704772835681837
+      },
+      "comm_share_percent": {
+        "run1": 11.213847930360632,
+        "run2": 11.730867599947976
+      },
+      "eager_over_graph": {
+        "run1": 1.02031801226764,
+        "run2": 1.0171144509022196
+      },
+      "chain_ms_per_pass": {
+        "run1": 4.7240447998046875,
+        "run2": 4.725120162963867
+      },
+      "effective_GBs": {
+        "run1": 1207.4935106957155,
+        "run2": 1207.2187041317409
+      },
+      "gemv_GBs": {
+        "run1": 1395.085786228455,
+        "run2": 1395.153470460607
+      }
+    }
+  },
+  "repeat_max_difference_percent": 4.634359604536753,
+  "checks": [
+    {
+      "shape": "toy",
+      "metric": "graph_chain_us_per_layer",
+      "run": "run1",
+      "predicted": [
+        8,
+        12
+      ],
+      "measured": 14.73039984703064,
+      "verdict": "miss (above)"
+    },
+    {
+      "shape": "toy",
+      "metric": "graph_chain_us_per_layer",
+      "run": "run2",
+      "predicted": [
+        8,
+        12
+      ],
+      "measured": 14.59449976682663,
+      "verdict": "miss (above)"
+    },
+    {
+      "shape": "toy",
+      "metric": "graph_compute_us_per_layer",
+      "run": "run1",
+      "predicted": [
+        0.5,
+        2.0
+      ],
+      "measured": 7.541599869728088,
+      "verdict": "miss (above)"
+    },
+    {
+      "shape": "toy",
+      "metric": "graph_compute_us_per_layer",
+      "run": "run2",
+      "predicted": [
+        0.5,
+        2.0
+      ],
+      "measured": 7.540500164031982,
+      "verdict": "miss (above)"
+    },
+    {
+      "shape": "toy",
+      "metric": "graph_comm_us_per_layer",
+      "run": "run1",
+      "predicted": [
+        8.3,
+        8.7
+      ],
+      "measured": 6.27560019493103,
+      "verdict": "miss (below)"
+    },
+    {
+      "shape": "toy",
+      "metric": "graph_comm_us_per_layer",
+      "run": "run2",
+      "predicted": [
+        8.3,
+        8.7
+      ],
+      "measured": 6.243199855089188,
+      "verdict": "miss (below)"
+    },
+    {
+      "shape": "toy",
+      "metric": "eager_over_graph",
+      "run": "run1",
+      "predicted": [
+        1.5,
+        3.5
+      ],
+      "measured": 3.1121280549788355,
+      "verdict": "hit"
+    },
+    {
+      "shape": "toy",
+      "metric": "eager_over_graph",
+      "run": "run2",
+      "predicted": [
+        1.5,
+        3.5
+      ],
+      "measured": 3.413002384173577,
+      "verdict": "hit"
+    },
+    {
+      "shape": "toy",
+      "metric": "comm_share_percent",
+      "run": "run1",
+      "predicted": [
+        70,
+        95
+      ],
+      "measured": 42.603053957127095,
+      "verdict": "miss (below)"
+    },
+    {
+      "shape": "toy",
+      "metric": "comm_share_percent",
+      "run": "run2",
+      "predicted": [
+        70,
+        95
+      ],
+      "measured": 42.777758435270336,
+      "verdict": "miss (below)"
+    },
+    {
+      "shape": "shard",
+      "metric": "graph_chain_us_per_layer",
+      "run": "run1",
+      "predicted": [
+        55,
+        75
+      ],
+      "measured": 73.81319999694824,
+      "verdict": "hit"
+    },
+    {
+      "shape": "shard",
+      "metric": "graph_chain_us_per_layer",
+      "run": "run2",
+      "predicted": [
+        55,
+        75
+      ],
+      "measured": 73.83000254631042,
+      "verdict": "hit"
+    },
+    {
+      "shape": "shard",
+      "metric": "graph_compute_us_per_layer",
+      "run": "run1",
+      "predicted": [
+        47,
+        67
+      ],
+      "measured": 63.88779878616333,
+      "verdict": "hit"
+    },
+    {
+      "shape": "shard",
+      "metric": "graph_compute_us_per_layer",
+      "run": "run2",
+      "predicted": [
+        47,
+        67
+      ],
+      "measured": 63.88469934463501,
+      "verdict": "hit"
+    },
+    {
+      "shape": "shard",
+      "metric": "graph_comm_us_per_layer",
+      "run": "run1",
+      "predicted": [
+        8.3,
+        8.7
+      ],
+      "measured": 8.277300000190735,
+      "verdict": "miss (below)"
+    },
+    {
+      "shape": "shard",
+      "metric": "graph_comm_us_per_layer",
+      "run": "run2",
+      "predicted": [
+        8.3,
+        8.7
+      ],
+      "measured": 8.660899847745895,
+      "verdict": "hit"
+    },
+    {
+      "shape": "shard",
+      "metric": "eager_over_graph",
+      "run": "run1",
+      "predicted": [
+        1.0,
+        1.5
+      ],
+      "measured": 1.02031801226764,
+      "verdict": "hit"
+    },
+    {
+      "shape": "shard",
+      "metric": "eager_over_graph",
+      "run": "run2",
+      "predicted": [
+        1.0,
+        1.5
+      ],
+      "measured": 1.0171144509022196,
+      "verdict": "hit"
+    },
+    {
+      "shape": "shard",
+      "metric": "comm_share_percent",
+      "run": "run1",
+      "predicted": [
+        11,
+        16
+      ],
+      "measured": 11.213847930360632,
+      "verdict": "hit"
+    },
+    {
+      "shape": "shard",
+      "metric": "comm_share_percent",
+      "run": "run2",
+      "predicted": [
+        11,
+        16
+      ],
+      "measured": 11.730867599947976,
+      "verdict": "hit"
+    }
+  ],
+  "additivity": {
+    "rule_percent": 10,
+    "all_within_rule": true
+  },
+  "criteria": {
+    "capture_holds_at_64_layers": true,
+    "exact_correctness_both_shapes": true,
+    "S4_graphs_3x_eager_toy": true,
+    "S4_graphs_3x_eager_shard": false,
+    "S5_comm_share_le_25_percent_shard": true,
+    "M0_L_le_12us": true
+  },
+  "projection": {
+    "label": "projected, NOT a measured engine",
+    "basis": "measured shard communication component as L plus the plan's estimated compute terms (8.35/2 + 1.56 ms); upstream single-card reference token-rush Phase 4, 2026-09-09/10",
+    "L_us": 8.469099923968315,
+    "step_ms": 6.819044790267943,
+    "tokens_per_second": 146.6481055275055,
+    "speedup_vs_upstream": 1.4532827257775796,
+    "note": "the 4.7 ms measured chain is one bf16 GEMV per layer, not the production int4 layer, so it is not compared to the step projection"
+  },
+  "gate": {
+    "M0_kill_criteria_triggered": false,
+    "M0_cleared": false,
+    "why_not_cleared": "capture, L and additivity pass, but the chain used bf16 weights rather than the production int4 kernel and omitted attention/GDN/sampling; the 1.56 ms fixed term remains an estimate",
+    "decision": "Mode A earns the next measured step: S5 block stack and then the Qwen3-8B TP=2 test model. No 1.5x claim before that measurement."
+  }
+}

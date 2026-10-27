@@ -19,12 +19,19 @@ S2's isolated all-reduce meets the 12 us component threshold and its
 capture-time graph structure - a dense dependency graph built from repeated
 waits - not transport: a dependent chain with a per-step consumer costs about
 10.2 us at 10 KiB and is flat in depth. S2's stop decision is therefore
-withdrawn; its raw numbers stand. **M0 remains uncleared:** no
-GEMV/collective/norm synthetic chain was run, so compute/communication overlap
-and the per-layer budget are unmeasured. No working engine exists. Computed
-outcomes remain `projected`, unmeasured inputs `estimate`; `measured` is
-reserved for recorded runs with raw artifacts. Measurements enter only through
-`lab/LOG.md` and `results/<date>-<box>/`.
+withdrawn; its raw numbers stand.
+
+An S4 capture probe then measured 64-layer chains at the production shard shape
+and a toy shape. Capture, exact correctness and additivity hold: the shard chain
+equals compute plus communication within about 2%, its 64-layer communication
+share is about 11-12%, and graphs beat eager by 3x only where the chain is
+launch-bound (the toy), not where it is weight-bound (about 1.02x). M0's kill
+criteria are not triggered, but **M0 is not cleared**: the chain used bf16
+weights rather than the production int4 kernel, and the 1.56 ms fixed term
+remains an estimate. The next measured step is the Qwen3-8B TP=2 test model,
+prediction first. No working engine exists. Computed outcomes remain `projected`,
+unmeasured inputs `estimate`; `measured` is reserved for recorded runs with raw
+artifacts. Measurements enter only through `lab/LOG.md` and `results/<date>-<box>/`.
 
 ## Numbers
 

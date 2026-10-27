@@ -10,12 +10,14 @@ changes a single variable and records the same five entries: baseline,
 optimization, number, bottleneck, next step. The purpose is to develop judgement
 about multi-GPU inference rather than to collect conclusions.
 
-> **Status: link, collective and capture-structure probes measured, 2026-10-27.**
-> P2P is unavailable on this box. The isolated all-reduce meets the component
-> threshold; the earlier 128-operation chain miss is attributed to capture-time
-> graph structure, not transport. A dependent chain with a per-step consumer
-> stays under 12 us, but M0 remains uncleared: no synthetic
-> GEMV/collective/norm chain exists yet. No model performance is measured.
+> **Status: link, collective, capture-structure and 64-layer chain probes
+> measured, 2026-10-27.** P2P is unavailable on this box. The isolated
+> all-reduce meets the component threshold; the earlier 128-operation chain miss
+> is attributed to capture-time graph structure, not transport. A 64-layer
+> production-shard chain captures in one graph per card, is bit-exact, and equals
+> compute plus communication within about 2%, with an 11-12% communication
+> share. M0's kill criteria are not triggered, but M0 is not cleared (bf16 chain,
+> int4 kernel and fixed term still projected). No model performance is measured.
 
 <!-- S1_RESULTS_START -->
 
@@ -76,11 +78,32 @@ Code `4041b1c`. BF16 SUM, nine samples; max rank per sample.
 The S2 chain cost was a capture-time dependency artifact: the wait-each graph
 had 8384 edges against 383 for tail-wait, growing
 with depth. A dependent chain with a real consumer stays near 10.2 us and is flat
-in depth, so the 'stop this NCCL path' decision was withdrawn. **M0 is still
-uncleared**: no synthetic GEMV/collective/norm chain exists yet.
+in depth, so the 'stop this NCCL path' decision was withdrawn. **M0 remains
+uncleared**; the S4 chain below uses bf16 weights, not the int4 production layer.
 [S2-sync report](results/2026-10-27-vast-57952342/s2-sync/S2-sync.md) · [Full data](results/2026-10-27-vast-57952342/s2-sync/matrix.csv).
 
 <!-- S2_SYNC_RESULTS_END -->
+
+<!-- S4_RESULTS_START -->
+
+S4 64-layer capture probe measured on 2026-10-27, same 2 x RTX 5090 box.
+Code `473853d`. bf16 GEMV at hidden 5120 / half-N 8704, 10 KiB SUM, nine samples.
+
+| shard shape, 64 layers | us/layer | pass (ms) |
+|---|---:|---:|
+| chain (GEMV + all-reduce + RMSNorm), graph | 73.813 | 4.724 |
+| compute only | 63.888 | 4.089 |
+| communication only | 8.277 | 0.530 |
+| eager chain | 75.313 | 4.820 |
+
+Chain = compute + communication within 2.3%; communication share
+11.2% at 64 layers. Capture and exact correctness hold. The chain is
+one bf16 GEMV per layer, not the production int4 layer, so **M0 is not cleared** and
+the step projection (6.82 ms, 1.45x) remains projected. Next: the
+Qwen3-8B TP=2 test model, prediction first.
+[S4 report](results/2026-10-27-vast-57952342/s4/S4.md) · [Full data](results/2026-10-27-vast-57952342/s4/matrix.csv).
+
+<!-- S4_RESULTS_END -->
 
 ## Documents
 

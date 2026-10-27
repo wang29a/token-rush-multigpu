@@ -1,0 +1,81 @@
+42d6ba11f3c3:13229:13229 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+42d6ba11f3c3:13229:13229 [1] NCCL INFO cudaDriverVersion 13030
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Bootstrap: Using eth0:172.17.0.3<0>
+42d6ba11f3c3:13229:13229 [1] NCCL INFO NCCL version 2.28.9+cuda12.9
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Comm config Blocking set to 1
+42d6ba11f3c3:13229:13229 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+42d6ba11f3c3:13229:13229 [1] NCCL INFO NET/IB : No device found.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO NET/IB : Using [RO]; OOB eth0:172.17.0.3<0>
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Failed to initialize NET plugin IB
+42d6ba11f3c3:13229:13229 [1] NCCL INFO NET/Socket : Using [0]eth0:172.17.0.3<0>
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Initialized NET plugin Socket
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Assigned NET plugin Socket to comm
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Using network Socket
+42d6ba11f3c3:13229:13229 [1] NCCL INFO ncclCommInitRankConfig comm 0x5b2528c03da0 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId c2000 commId 0xaea02efc550ae04c - Init START
+42d6ba11f3c3:13229:13229 [1] NCCL INFO RAS client listening socket at ::1<28028>
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Bootstrap timings total 0.019297 (create 0.000018, send 0.000054, recv 0.000105, ring 0.007910, delay 0.000000)
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-63).
+42d6ba11f3c3:13229:13229 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+42d6ba11f3c3:13229:13229 [1] NCCL INFO comm 0x5b2528c03da0 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] 0/-1/-1->1->-1 [2] -1/-1/-1->1->0 [3] 0/-1/-1->1->-1
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P Chunksize set to 131072
+42d6ba11f3c3:13229:13229 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+42d6ba11f3c3:13229:13248 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 21
+42d6ba11f3c3:13229:13246 [0] NCCL INFO [Proxy Service] Device 1 CPU core 29
+42d6ba11f3c3:13229:13229 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+42d6ba11f3c3:13229:13229 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+42d6ba11f3c3:13229:13229 [1] NCCL INFO 4 coll channels, 4 collnet channels, 0 nvls channels, 4 p2p channels, 2 p2p channels per peer
+42d6ba11f3c3:13229:13229 [1] NCCL INFO ncclCommInitRankConfig comm 0x5b2528c03da0 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId c2000 commId 0xaea02efc550ae04c - Init COMPLETE
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.23 (kernels 0.20, alloc 0.00, bootstrap 0.02, allgathers 0.00, topo 0.00, graphs 0.00, connections 0.00, rest 0.00)
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Initialized NET plugin Socket
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Assigned NET plugin Socket to comm
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Using network Socket
+42d6ba11f3c3:13229:13229 [1] NCCL INFO ncclCommInitRank comm 0x5b25348f9950 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId c2000 commId 0xb0e01b976d761eb3 - Init START
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Bootstrap timings total 0.000527 (create 0.000034, send 0.000077, recv 0.000226, ring 0.000011, delay 0.000000)
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-63).
+42d6ba11f3c3:13229:13229 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+42d6ba11f3c3:13229:13229 [1] NCCL INFO comm 0x5b25348f9950 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] 0/-1/-1->1->-1 [2] -1/-1/-1->1->0 [3] 0/-1/-1->1->-1
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P Chunksize set to 131072
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+42d6ba11f3c3:13229:13249 [0] NCCL INFO [Proxy Service] Device 1 CPU core 32
+42d6ba11f3c3:13229:13251 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 18
+42d6ba11f3c3:13229:13229 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+42d6ba11f3c3:13229:13229 [1] NCCL INFO 4 coll channels, 4 collnet channels, 0 nvls channels, 4 p2p channels, 2 p2p channels per peer
+42d6ba11f3c3:13229:13229 [1] NCCL INFO ncclCommInitRank comm 0x5b25348f9950 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId c2000 commId 0xb0e01b976d761eb3 - Init COMPLETE
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Init timings - ncclCommInitRank: rank 1 nranks 2 total 0.01 (kernels 0.00, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.00, graphs 0.00, connections 0.00, rest 0.00)
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Channel 02 : 1[1] -> 0[0] via SHM/direct/direct
+42d6ba11f3c3:13229:13229 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Channel 03 : 1[1] -> 0[0] via SHM/direct/direct
+42d6ba11f3c3:13229:13229 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+42d6ba11f3c3:13229:13229 [1] NCCL INFO comm 0x5b25348f9950 rank 1 nranks 2 cudaDev 1 busId c2000 - Destroy COMPLETE
+42d6ba11f3c3:13229:13229 [1] NCCL INFO comm 0x5b2528c03da0 rank 1 nranks 2 cudaDev 1 busId c2000 - Destroy COMPLETE
+42d6ba11f3c3:13229:13229 [1] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
