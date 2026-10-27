@@ -258,7 +258,10 @@ stream capture](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-t
 The script uses PyTorch operations and no architecture-specific kernel.
 """
     (base/"S1.md").write_text(body)
-    (ROOT/"lab/LOG.md").write_text("# Multi-GPU experiment log\n\n"+body.replace("# S1 —", "## S1 —",1))
+    log=ROOT/"lab/LOG.md"
+    existing=log.read_text() if log.exists() else ""
+    later="\n\n## S2 —"+existing.split("## S2 —",1)[1] if "## S2 —" in existing else ""
+    log.write_text("# Multi-GPU experiment log\n\n"+body.replace("# S1 —", "## S1 —",1)+later)
     index = ["Measured on 2026-10-27, vast-57952342, 2 x RTX 5090; primary run3.",
              f"Code `{summary['code_commit'][:7]}`; seven samples per cell. Both GPUs",
              "have Gen5 x16 links; runtime peer access is false in both directions.",

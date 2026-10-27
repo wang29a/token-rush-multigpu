@@ -1,8 +1,9 @@
 # Multi-GPU — one stream, two cards
 
 **Status: proposal, 2026-10-25. Multi-GPU performance numbers in this file are
-projections.** S1 link measurements were recorded on 2026-10-27 in
-[`../lab/LOG.md`](../lab/LOG.md); they do not clear M0 or replace its all-reduce L.
+projections.** S1 link and S2 NCCL component measurements were recorded on 2026-10-27 in
+[`../lab/LOG.md`](../lab/LOG.md). Isolated all-reduce meets the primitive threshold;
+the dependent 128-operation graph misses the budget. M0 remains uncleared.
 The
 single-card engine is closed (phases 0–5, `docs/progress.md` step 35). This is
 the plan for testing the same thesis one level up, and it is written to be

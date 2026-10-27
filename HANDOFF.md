@@ -5,10 +5,10 @@
 
 ## Current status
 
-**S1 data collection completed with qualifications on 2026-10-27.** The
-repository now contains the link probe, generated report and raw measurements.
-Read `lab/LOG.md` and `results/2026-10-27-vast-57952342/S1.md`. No all-reduce or
-model measurements exist yet. M0 is not evaluated.
+**S1 and the S2 NCCL baseline are recorded (2026-10-27).** Read `lab/LOG.md`,
+`results/2026-10-27-vast-57952342/S1.md`, and its `s2/S2.md`.
+Full S2's one-shot comparison is unevaluated. M0 remains uncleared. No model
+or GEMV/collective/norm synthetic chain was run.
 
 ## Settled decisions (not open for discussion)
 
@@ -24,33 +24,38 @@ model measurements exist yet. M0 is not evaluated.
 5. **Code is written on the rented machine** (`/workspace/lab/`). This repository
    holds the plan, the stage code, the logs and the result summaries.
 
-## Next: resolve the communication gate, before model work
+## Next: stop this NCCL path before model work
 
-S1 code is `lab/01_link.py`; generate measured tables with `lab/report_s1.py`.
-`run3` is the full sweep and `run4` the bounded confirmation. Both complete
-all variants, correctness checks and teardown normally. `run1`/`run2` retain
-capture-isolation and graph/NCCL teardown mistakes; they are diagnostic only.
-The code commit and source hash are in every run's metadata.
+S2 code is `lab/02_collectives.py`; generate tables with `lab/report_s2.py`.
+`default1` is the full four-size/five-operation sweep; `default2` repeats the
+small all-reduce case. `ring-ll1`, `tree-ll1`, `ring-simple1` are the entire
+bounded cause/configuration check. All variants exit normally, including
+correctness checks and graph/NCCL teardown. Do not expand the sweep after
+seeing these results. Exact numbers are generated in the log, never retyped.
 
-- Runtime peer access is unavailable in both directions; P2P-on was not tested.
-- One-way graph copy and half-roundtrip proxy meet 15 us. Full roundtrip does
-  not. Exact generated measurements, repeats and size sweep are in `lab/LOG.md`.
-- The original documents conflict: the lab calls S1 one-message latency,
-  while this handoff originally called it roundtrip latency. Do not silently
-  replace roundtrip with half-roundtrip or claim an unqualified S1 pass.
-- Copy graphs work after explicitly forking and joining the remote stream.
-  NCCL graph executables must be reset, including releasing bound replay
-  methods, before process-group destruction.
+- The isolated all-reduce meets 12 us, while every tested 128-operation graph
+  misses that budget per operation. The <=25% isolated-vs-chain prediction was
+  refuted. Report both; do not use the isolated result to declare M0 cleared.
+- NCCL logs identify SHM/direct/direct, with peer access false in both
+  directions. The P2P-based one-shot cannot be tested as specified. A custom
+  host-staged one-shot has not been implemented or measured.
+- Extra serial-chain cost has not been separated into graph event/stream
+  overhead versus transport. It is a negative result for this implementation
+  path, not proof of an immutable physical limit of all two-5090 systems.
+- No model or synthetic GEMV/collective/norm chain was run. Full S2's one-shot
+  >=2x criterion and full M0 remain unevaluated/uncleared.
 
-The next bounded investigation is **NCCL all-reduce inside a graph (the S2
-baseline)**, to resolve the actual primitive's cost. Write a new numeric
-prediction first. This is a descent into the communication cause, not clearance
-for S3 or model implementation. S1 copy/broadcast times cannot be used as M0's
-all-reduce L. M0 additionally requires the synthetic chain/capture check.
+**Decision:** do not enter S3–S10 model implementation on the present evidence.
+Any further Mode A work first needs a new bounded cause experiment (isolate
+captured stream/event edges, or specify a host-staged collective), with a
+numeric prediction written before running. If the M0 gate cannot be met, the
+agreed fallback is Mode B, not more cards. No automatic instance destruction
+or driver patching.
 
-S1's one-message gate is 15 us; M0's actual all-reduce gate is 12 us.
-If M0 fails, Mode B remains the fallback. No driver patching or automatic
-instance destruction. Do not add cards to evade a failed gate.
+S1's original gate ambiguity remains documented in `S1.md`: one-message vs
+full roundtrip against the same 15 us number. `run3`/`run4` are its primary and
+confirmation; `run1`/`run2` retain early capture/teardown mistakes. Copy/broadcast
+are never substituted for M0's all-reduce L.
 
 ## Backup on this instance
 
@@ -60,6 +65,11 @@ artifacts and the generated report. Verify local HEAD against the remote.
 Keep weights, caches, virtual environments, credentials and rendezvous files
 out of Git. If authentication blocks push, say so explicitly and produce a
 Git bundle; a local commit/bundle alone is not an off-instance backup.
+
+Direct SSH push now works with a repository-scoped deploy key configured in
+local Git configuration; `origin` is the SSH URL. The private key stays outside
+the checkout. The GitHub plugin can read but its Git-object write test returned
+403, so do not assume its reported user push permission grants API write scope.
 
 ## Do not
 

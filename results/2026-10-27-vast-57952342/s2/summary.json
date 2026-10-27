@@ -1,0 +1,56 @@
+{
+  "label": "measured components; production numbers below are projected",
+  "code_commit": "69cfc236db2a037016604e2186c4c070b768391c",
+  "script_sha256": "8b2f7f76fca4a0941379df110b94dd64eb7e63c681d762bc6dea9ed7ee468909",
+  "default_graph1_10KiB_us": 9.391040205955505,
+  "default_graph128_10KiB_us_per_op": 14.30869996547699,
+  "default_graph128_10KiB_ms_per_128": 1.8315135955810546,
+  "default_graph128_80KiB_us_per_op": 18.424199521541595,
+  "repeat_graph128_10KiB_us_per_op": 14.369450509548187,
+  "chain_vs_single_percent": 52.36544250340722,
+  "graph_vs_eager_gain_percent": 47.434127807037854,
+  "profiles": {
+    "default1": {
+      "10KiB_chain_us": 14.30869996547699,
+      "80KiB_chain_us": 18.424199521541595
+    },
+    "default2": {
+      "10KiB_chain_us": 14.369450509548187,
+      "80KiB_chain_us": 18.474699556827545
+    },
+    "ring-ll1": {
+      "10KiB_chain_us": 14.35910016298294,
+      "80KiB_chain_us": 18.444499373435974
+    },
+    "tree-ll1": {
+      "10KiB_chain_us": 16.06995016336441,
+      "80KiB_chain_us": 24.67374950647354
+    },
+    "ring-simple1": {
+      "10KiB_chain_us": 22.282999753952026,
+      "80KiB_chain_us": 24.625299870967865
+    }
+  },
+  "gate": {
+    "isolated_10KiB_le_12us": true,
+    "dependent_chain_10KiB_le_12us": false,
+    "any_bounded_profile_chain_le_12us": false,
+    "full_S2_pass": false,
+    "M0_cleared": false,
+    "one_shot": "P2P-based variant unavailable; host-staged one-shot not implemented/measured",
+    "decision": "Stop model implementation on this NCCL path; no further parameter sweep. Baseline complete, full S2 and M0 not cleared."
+  },
+  "projection": {
+    "label": "projected, NOT a measured engine",
+    "date": "2026-10-27",
+    "basis": "Measured default1 communication chain plus original estimated TP compute terms; extrapolated from component measurements, not from a working engine. Upstream single-card reference: token-rush Phase 4, 2026-09-09/10.",
+    "compute_terms_ms": [
+      4.175,
+      1.56
+    ],
+    "communication_ms": 1.8315135955810546,
+    "step_ms": 7.566513595581054,
+    "tokens_per_second": 132.16126388565712,
+    "speedup_vs_upstream_reference": 1.3097181251068621
+  }
+}

@@ -12,12 +12,16 @@ Accounting and falsifiers are in `docs/multigpu.md`.
 
 ## Stage
 
-S1 link measurements recorded on 2026-10-27; see `lab/LOG.md`. Code and raw
-results now exist. S1 is complete with qualifications: peer access is
-unavailable, one-way copy and half-RTT meet 15 us, but full RTT does not.
-Do not call this an unqualified stage pass or M0 clearance. No engine or
-all-reduce measurements yet. Computed outcomes remain `projected` and
-unmeasured inputs `estimate`; `measured` is reserved for recorded runs.
+S1 and the S2 NCCL baseline were measured on 2026-10-27; see `lab/LOG.md`.
+S1 remains qualified (P2P unavailable; one-way/RTT gate definitions differ).
+S2's isolated all-reduce meets the 12 us component threshold, but the
+128-operation graph misses that budget in the default, repeat and all bounded
+protocol/algorithm profiles. The planned one-shot comparison is unevaluated.
+Do not call full S2 passed or M0 cleared. No working engine or synthetic
+GEMV/collective/norm chain was measured. Stop model implementation on this
+NCCL path pending a new, explicitly predicted cause experiment or the agreed
+fallback. Computed outcomes remain `projected`, unmeasured inputs `estimate`;
+`measured` is reserved for recorded runs with raw artifacts.
 Measurements enter only through `lab/LOG.md` and `results/<date>-<box>/`.
 
 ## Numbers

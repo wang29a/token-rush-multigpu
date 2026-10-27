@@ -10,10 +10,10 @@ changes a single variable and records the same five entries: baseline,
 optimization, number, bottleneck, next step. The purpose is to develop judgement
 about multi-GPU inference rather than to collect conclusions.
 
-> **Status: S1 link measurements recorded, 2026-10-27.** Peer access is
-> unavailable on this box. Cross-device copy and NCCL broadcast graphs work.
-> S1 is complete with qualifications; M0 is not evaluated. No model or
-> all-reduce performance is measured yet.
+> **Status: S1 and S2 NCCL baseline measured, 2026-10-27.** P2P is
+> unavailable on this box. The isolated all-reduce meets the component latency
+> threshold, but the 128-operation graph exceeds the budget. Full S2's one-shot
+> comparison is unevaluated; M0 remains uncleared. No model performance is measured.
 
 <!-- S1_RESULTS_START -->
 
@@ -38,6 +38,25 @@ in-graph all-reduce measurements; copy/broadcast cannot clear it.
 
 <!-- S1_RESULTS_END -->
 
+<!-- S2_RESULTS_START -->
+
+S2 NCCL baseline measured on 2026-10-27, same 2 x RTX 5090 box.
+Code `69cfc23`. BF16 SUM, nine samples; max rank per sample.
+
+| default all-reduce component | 10 KiB | 80 KiB |
+|---|---:|---:|
+| eager (us/op) | 17.865 | 19.310 |
+| one-operation graph (us/op) | 9.391 | 12.887 |
+| 128-operation graph (us/op) | 14.309 | 18.424 |
+| 128-operation graph (ms/128) | 1.832 | 2.358 |
+
+The isolated primitive meets 12 us; all tested dependent-chain profiles miss
+that budget. **M0 remains uncleared; full S2 one-shot comparison is unevaluated.**
+Stop model implementation on this NCCL path pending an explanation of the chain cost.
+[S2 report](results/2026-10-27-vast-57952342/s2/S2.md) · [Full data](results/2026-10-27-vast-57952342/s2/matrix.csv).
+
+<!-- S2_RESULTS_END -->
+
 ## Documents
 
 | Document | Question it answers |
@@ -57,7 +76,7 @@ the roofline wall, account for bytes, and capture the step in a graph — and
 produced every single-card figure quoted here.
 
 The multi-GPU plan, the eleven-stage ladder, and multi-GPU experiments are
-original to this repository. **S1 link results are measured; all engine numbers
+original to this repository. **S1 link and S2 NCCL results are measured; all engine numbers
 remain projections.** The recorded runs, predictions and raw artifacts are in
 `lab/LOG.md` and `results/`. This repository is an independent
 personal experiment; it is not an official token-rush project and carries no
