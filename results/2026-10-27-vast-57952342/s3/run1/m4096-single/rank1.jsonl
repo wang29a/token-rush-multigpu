@@ -1,0 +1,1 @@
+{"m": 4096, "n": 8704, "k": 5120, "variant": "single", "rank": 1, "active": false, "dtype": "bfloat16", "reps": 1, "samples": 7, "payload_bytes": 0, "us_samples": [NaN, NaN, NaN, NaN, NaN, NaN, NaN], "us_median": null, "correct": true, "exact_equal": true, "max_abs_diff": 0.0, "weight_bytes_per_card": 0, "weight_matrices": 8, "collective": "none"}

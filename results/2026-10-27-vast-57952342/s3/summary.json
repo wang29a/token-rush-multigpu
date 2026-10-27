@@ -1,0 +1,607 @@
+{
+  "label": "measured component; no model",
+  "code_commit": "e968042966e0208b6fc6b4bd06faefa412accdc5",
+  "script_sha256": "bdb6f2635d1bb2eb51dac11755326f6962f61d0275a6062d4cc742bce29ec11d",
+  "layer": {
+    "n": 8704,
+    "k": 5120,
+    "dtype": "bfloat16"
+  },
+  "ms": [
+    1,
+    8,
+    64,
+    512,
+    4096
+  ],
+  "runs": {
+    "run1": {
+      "finished_utc": "2026-10-27T12:27:06.723233+00:00",
+      "cells": [
+        "single@1",
+        "split_n@1",
+        "split_k@1",
+        "single_split_k@1",
+        "single@8",
+        "split_n@8",
+        "split_k@8",
+        "single_split_k@8",
+        "single@64",
+        "split_n@64",
+        "split_k@64",
+        "single_split_k@64",
+        "single@512",
+        "split_n@512",
+        "split_k@512",
+        "single_split_k@512",
+        "single@4096",
+        "split_n@4096",
+        "split_k@4096",
+        "single_split_k@4096"
+      ],
+      "reversed_order": false
+    },
+    "run2": {
+      "finished_utc": "2026-10-27T12:28:16.125503+00:00",
+      "cells": [
+        "single_split_k@4096",
+        "split_k@4096",
+        "split_n@4096",
+        "single@4096",
+        "single_split_k@512",
+        "split_k@512",
+        "split_n@512",
+        "single@512",
+        "single_split_k@64",
+        "split_k@64",
+        "split_n@64",
+        "single@64",
+        "single_split_k@8",
+        "split_k@8",
+        "split_n@8",
+        "single@8",
+        "single_split_k@1",
+        "split_k@1",
+        "split_n@1",
+        "single@1"
+      ],
+      "reversed_order": true
+    }
+  },
+  "metrics": {
+    "1": {
+      "single": 57.158238887786865,
+      "split_n": 39.14800047874451,
+      "split_k": 39.47304010391235,
+      "single_split_k": 63.5861611366272,
+      "split_n_ratio": 1.4600551289668309,
+      "split_k_ratio": 1.4480323465666292,
+      "half_single": 28.579119443893433,
+      "split_n_overhead_us": 10.568881034851074,
+      "payload_split_n_bytes": 8704,
+      "payload_split_k_bytes": 17408,
+      "payload_n_at_link_us": 0.1964785553047404,
+      "payload_k_at_link_us": 0.3929571106094808,
+      "split_n_wins": true,
+      "split_k_wins": true
+    },
+    "8": {
+      "single": 59.84656095504761,
+      "split_n": 47.54863977432251,
+      "split_k": 48.472161293029785,
+      "single_split_k": 63.17280054092407,
+      "split_n_ratio": 1.2586387589443997,
+      "split_k_ratio": 1.2346583968735358,
+      "half_single": 29.923280477523804,
+      "split_n_overhead_us": 17.625359296798706,
+      "payload_split_n_bytes": 69632,
+      "payload_split_k_bytes": 139264,
+      "payload_n_at_link_us": 1.5718284424379232,
+      "payload_k_at_link_us": 3.1436568848758464,
+      "split_n_wins": true,
+      "split_k_wins": true
+    },
+    "64": {
+      "single": 123.69183540344238,
+      "split_n": 79.48800086975098,
+      "split_k": 100.84928035736084,
+      "single_split_k": 85.96448421478271,
+      "split_n_ratio": 1.5561070104923609,
+      "split_k_ratio": 1.226501914194515,
+      "half_single": 61.84591770172119,
+      "split_n_overhead_us": 17.642083168029785,
+      "payload_split_n_bytes": 557056,
+      "payload_split_k_bytes": 1114112,
+      "payload_n_at_link_us": 12.574627539503386,
+      "payload_k_at_link_us": 25.14925507900677,
+      "split_n_wins": true,
+      "split_k_wins": true
+    },
+    "512": {
+      "single": 253.84960174560547,
+      "split_n": 314.69759941101074,
+      "split_k": 478.1952142715454,
+      "single_split_k": 282.37119913101196,
+      "split_n_ratio": 0.8066461333696583,
+      "split_k_ratio": 0.5308493146095263,
+      "half_single": 126.92480087280273,
+      "split_n_overhead_us": 187.772798538208,
+      "payload_split_n_bytes": 4456448,
+      "payload_split_k_bytes": 8912896,
+      "payload_n_at_link_us": 100.59702031602708,
+      "payload_k_at_link_us": 201.19404063205417,
+      "split_n_wins": false,
+      "split_k_wins": false
+    },
+    "4096": {
+      "single": 1699.887990951538,
+      "split_n": 2280.0800800323486,
+      "split_k": 3430.2719831466675,
+      "single_split_k": 1919.1679954528809,
+      "split_n_ratio": 0.7455387228888123,
+      "split_k_ratio": 0.49555487124732067,
+      "half_single": 849.943995475769,
+      "split_n_overhead_us": 1430.1360845565796,
+      "payload_split_n_bytes": 35651584,
+      "payload_split_k_bytes": 71303168,
+      "payload_n_at_link_us": 804.7761625282167,
+      "payload_k_at_link_us": 1609.5523250564333,
+      "split_n_wins": false,
+      "split_k_wins": false
+    }
+  },
+  "repeat_max_difference_percent": 0.4620818396597448,
+  "checks": [
+    {
+      "m": 1,
+      "variant": "single",
+      "run": "run1",
+      "predicted": [
+        55,
+        75
+      ],
+      "measured": 57.10991859436035,
+      "verdict": "hit"
+    },
+    {
+      "m": 1,
+      "variant": "single",
+      "run": "run2",
+      "predicted": [
+        55,
+        75
+      ],
+      "measured": 57.20655918121338,
+      "verdict": "hit"
+    },
+    {
+      "m": 1,
+      "variant": "split_n",
+      "run": "run1",
+      "predicted": [
+        28,
+        40
+      ],
+      "measured": 39.15008068084717,
+      "verdict": "hit"
+    },
+    {
+      "m": 1,
+      "variant": "split_n",
+      "run": "run2",
+      "predicted": [
+        28,
+        40
+      ],
+      "measured": 39.145920276641846,
+      "verdict": "hit"
+    },
+    {
+      "m": 1,
+      "variant": "split_k",
+      "run": "run1",
+      "predicted": [
+        28,
+        40
+      ],
+      "measured": 39.44767951965332,
+      "verdict": "hit"
+    },
+    {
+      "m": 1,
+      "variant": "split_k",
+      "run": "run2",
+      "predicted": [
+        28,
+        40
+      ],
+      "measured": 39.49840068817139,
+      "verdict": "hit"
+    },
+    {
+      "m": 1,
+      "variant": "single_split_k",
+      "run": "run1",
+      "predicted": [
+        55,
+        75
+      ],
+      "measured": 63.540802001953125,
+      "verdict": "hit"
+    },
+    {
+      "m": 1,
+      "variant": "single_split_k",
+      "run": "run2",
+      "predicted": [
+        55,
+        75
+      ],
+      "measured": 63.63152027130127,
+      "verdict": "hit"
+    },
+    {
+      "m": 8,
+      "variant": "single",
+      "run": "run1",
+      "predicted": [
+        55,
+        80
+      ],
+      "measured": 59.82272148132324,
+      "verdict": "hit"
+    },
+    {
+      "m": 8,
+      "variant": "single",
+      "run": "run2",
+      "predicted": [
+        55,
+        80
+      ],
+      "measured": 59.87040042877197,
+      "verdict": "hit"
+    },
+    {
+      "m": 8,
+      "variant": "split_n",
+      "run": "run1",
+      "predicted": [
+        30,
+        45
+      ],
+      "measured": 47.55936145782471,
+      "verdict": "miss (above)"
+    },
+    {
+      "m": 8,
+      "variant": "split_n",
+      "run": "run2",
+      "predicted": [
+        30,
+        45
+      ],
+      "measured": 47.53791809082031,
+      "verdict": "miss (above)"
+    },
+    {
+      "m": 8,
+      "variant": "split_k",
+      "run": "run1",
+      "predicted": [
+        32,
+        50
+      ],
+      "measured": 48.49408149719238,
+      "verdict": "hit"
+    },
+    {
+      "m": 8,
+      "variant": "split_k",
+      "run": "run2",
+      "predicted": [
+        32,
+        50
+      ],
+      "measured": 48.45024108886719,
+      "verdict": "hit"
+    },
+    {
+      "m": 8,
+      "variant": "single_split_k",
+      "run": "run1",
+      "predicted": [
+        55,
+        80
+      ],
+      "measured": 63.16927909851074,
+      "verdict": "hit"
+    },
+    {
+      "m": 8,
+      "variant": "single_split_k",
+      "run": "run2",
+      "predicted": [
+        55,
+        80
+      ],
+      "measured": 63.1763219833374,
+      "verdict": "hit"
+    },
+    {
+      "m": 64,
+      "variant": "single",
+      "run": "run1",
+      "predicted": [
+        70,
+        120
+      ],
+      "measured": 123.4067153930664,
+      "verdict": "miss (above)"
+    },
+    {
+      "m": 64,
+      "variant": "single",
+      "run": "run2",
+      "predicted": [
+        70,
+        120
+      ],
+      "measured": 123.97695541381836,
+      "verdict": "miss (above)"
+    },
+    {
+      "m": 64,
+      "variant": "split_n",
+      "run": "run1",
+      "predicted": [
+        40,
+        70
+      ],
+      "measured": 79.48544025421143,
+      "verdict": "miss (above)"
+    },
+    {
+      "m": 64,
+      "variant": "split_n",
+      "run": "run2",
+      "predicted": [
+        40,
+        70
+      ],
+      "measured": 79.49056148529053,
+      "verdict": "miss (above)"
+    },
+    {
+      "m": 64,
+      "variant": "split_k",
+      "run": "run1",
+      "predicted": [
+        50,
+        90
+      ],
+      "measured": 100.91008186340332,
+      "verdict": "miss (above)"
+    },
+    {
+      "m": 64,
+      "variant": "split_k",
+      "run": "run2",
+      "predicted": [
+        50,
+        90
+      ],
+      "measured": 100.78847885131836,
+      "verdict": "miss (above)"
+    },
+    {
+      "m": 64,
+      "variant": "single_split_k",
+      "run": "run1",
+      "predicted": [
+        75,
+        125
+      ],
+      "measured": 85.91168403625488,
+      "verdict": "hit"
+    },
+    {
+      "m": 64,
+      "variant": "single_split_k",
+      "run": "run2",
+      "predicted": [
+        75,
+        125
+      ],
+      "measured": 86.01728439331055,
+      "verdict": "hit"
+    },
+    {
+      "m": 512,
+      "variant": "single",
+      "run": "run1",
+      "predicted": [
+        350,
+        600
+      ],
+      "measured": 253.60000133514404,
+      "verdict": "miss (below)"
+    },
+    {
+      "m": 512,
+      "variant": "single",
+      "run": "run2",
+      "predicted": [
+        350,
+        600
+      ],
+      "measured": 254.0992021560669,
+      "verdict": "miss (below)"
+    },
+    {
+      "m": 512,
+      "variant": "split_n",
+      "run": "run1",
+      "predicted": [
+        280,
+        450
+      ],
+      "measured": 314.83519077301025,
+      "verdict": "hit"
+    },
+    {
+      "m": 512,
+      "variant": "split_n",
+      "run": "run2",
+      "predicted": [
+        280,
+        450
+      ],
+      "measured": 314.56000804901123,
+      "verdict": "hit"
+    },
+    {
+      "m": 512,
+      "variant": "split_k",
+      "run": "run1",
+      "predicted": [
+        350,
+        600
+      ],
+      "measured": 477.2160053253174,
+      "verdict": "hit"
+    },
+    {
+      "m": 512,
+      "variant": "split_k",
+      "run": "run2",
+      "predicted": [
+        350,
+        600
+      ],
+      "measured": 479.17442321777344,
+      "verdict": "hit"
+    },
+    {
+      "m": 512,
+      "variant": "single_split_k",
+      "run": "run1",
+      "predicted": [
+        360,
+        620
+      ],
+      "measured": 281.9200038909912,
+      "verdict": "miss (below)"
+    },
+    {
+      "m": 512,
+      "variant": "single_split_k",
+      "run": "run2",
+      "predicted": [
+        360,
+        620
+      ],
+      "measured": 282.8223943710327,
+      "verdict": "miss (below)"
+    },
+    {
+      "m": 4096,
+      "variant": "single",
+      "run": "run1",
+      "predicted": [
+        3000,
+        4500
+      ],
+      "measured": 1700.2559900283813,
+      "verdict": "miss (below)"
+    },
+    {
+      "m": 4096,
+      "variant": "single",
+      "run": "run2",
+      "predicted": [
+        3000,
+        4500
+      ],
+      "measured": 1699.5199918746948,
+      "verdict": "miss (below)"
+    },
+    {
+      "m": 4096,
+      "variant": "split_n",
+      "run": "run1",
+      "predicted": [
+        2200,
+        3500
+      ],
+      "measured": 2281.1200618743896,
+      "verdict": "hit"
+    },
+    {
+      "m": 4096,
+      "variant": "split_n",
+      "run": "run2",
+      "predicted": [
+        2200,
+        3500
+      ],
+      "measured": 2279.0400981903076,
+      "verdict": "hit"
+    },
+    {
+      "m": 4096,
+      "variant": "split_k",
+      "run": "run1",
+      "predicted": [
+        3000,
+        5000
+      ],
+      "measured": 3428.6720752716064,
+      "verdict": "hit"
+    },
+    {
+      "m": 4096,
+      "variant": "split_k",
+      "run": "run2",
+      "predicted": [
+        3000,
+        5000
+      ],
+      "measured": 3431.8718910217285,
+      "verdict": "hit"
+    },
+    {
+      "m": 4096,
+      "variant": "single_split_k",
+      "run": "run1",
+      "predicted": [
+        3000,
+        4500
+      ],
+      "measured": 1919.5200204849243,
+      "verdict": "miss (below)"
+    },
+    {
+      "m": 4096,
+      "variant": "single_split_k",
+      "run": "run2",
+      "predicted": [
+        3000,
+        4500
+      ],
+      "measured": 1918.8159704208374,
+      "verdict": "miss (below)"
+    }
+  ],
+  "crossover": {
+    "split_n_first_loss_m": 512,
+    "split_k_first_loss_m": 512
+  },
+  "criteria": {
+    "split_n_wins_at_M1": true,
+    "split_n_wins_all_M": false,
+    "split_k_wins_at_M1": true,
+    "int4": "untested: no int4 GEMV kernel installed"
+  },
+  "decision": "split-N stops paying at some measured M; do not extend the sweep. The TP premise is limited to the batch range where it wins; re-argue S6 before model work."
+}

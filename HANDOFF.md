@@ -5,9 +5,10 @@
 
 ## Current status
 
-**S1, S2, the S2-sync cause probe and the S4 64-layer chain are recorded
-(2026-10-27).** Read `lab/LOG.md`, `results/2026-10-27-vast-57952342/S1.md`, its
-`s2/S2.md`, `s2-sync/S2-sync.md` and `s4/S4.md`. S2-sync withdrew S2's "stop this
+**S1, S2, the S2-sync cause probe, the S3 split sweep and the S4 64-layer chain
+are recorded (2026-10-27).** Read `lab/LOG.md`,
+`results/2026-10-27-vast-57952342/S1.md`, its `s2/S2.md`, `s2-sync/S2-sync.md`,
+`s3/S3.md` and `s4/S4.md`. S2-sync withdrew S2's "stop this
 NCCL path" decision: the 128-operation chain miss came from capture-time graph
 structure, not transport. S4 then captured 64-layer chains in one graph per
 card: exact correctness, additivity within about 2%, 64-layer communication
@@ -31,11 +32,15 @@ model has been run.
 
 ## Next: the Qwen3-8B test model at TP=2
 
-S4 code is `lab/03_block_chain.py`; generate its tables with `lab/report_s4.py`.
+S3 code is `lab/04_linear_splits.py` (`lab/report_s3.py`); S4 code is
+`lab/03_block_chain.py` (`lab/report_s4.py`).
 `run1`/`run2` are the complete forward and reverse-order measurements; all 16
 variant runs exited cleanly. Exact numbers are generated in the log, never
 retyped.
 
+- S3 measured the split crossover on one bf16 layer: split-N is about 1.5x at
+  M=1 and wins through M=64, then loses at M=512 (0.81x) and M=4096 (0.75x).
+  The bs=1 cell is the winning one; large-batch cells are not.
 - Capture holds at 64 layers and every replay is bit-identical to a
   no-collective reference. Additivity holds: the shard chain equals compute
   plus communication within about 2%.

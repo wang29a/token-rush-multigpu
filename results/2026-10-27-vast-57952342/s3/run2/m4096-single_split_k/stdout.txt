@@ -1,0 +1,2 @@
+NCCL version 2.28.9+cuda12.9
+{"m": 4096, "variant": "single_split_k", "us_median": 1837.0239734649658, "payload_bytes": 0, "exact_equal": false}

@@ -16,8 +16,10 @@ about multi-GPU inference rather than to collect conclusions.
 > is attributed to capture-time graph structure, not transport. A 64-layer
 > production-shard chain captures in one graph per card, is bit-exact, and equals
 > compute plus communication within about 2%, with an 11-12% communication
-> share. M0's kill criteria are not triggered, but M0 is not cleared (bf16 chain,
-> int4 kernel and fixed term still projected). No model performance is measured.
+> share. An S3 split sweep puts the bs=1 crossover on the winning side: split-N
+> is about 1.5x one layer at M=1, and loses above M=64. M0's kill criteria are
+> not triggered, but M0 is not cleared (bf16 chain, int4 kernel and fixed term
+> still projected). No model performance is measured.
 
 <!-- S1_RESULTS_START -->
 
@@ -83,6 +85,25 @@ uncleared**; the S4 chain below uses bf16 weights, not the int4 production layer
 [S2-sync report](results/2026-10-27-vast-57952342/s2-sync/S2-sync.md) · [Full data](results/2026-10-27-vast-57952342/s2-sync/matrix.csv).
 
 <!-- S2_SYNC_RESULTS_END -->
+
+<!-- S3_RESULTS_START -->
+
+S3 linear-layer splits measured on 2026-10-27, same 2 x RTX 5090 box.
+Code `e968042`. bf16, N=8704, K=5120, seven samples; max rank per sample.
+
+| M | single | split-N | split-K | split-N speedup |
+|---:|---:|---:|---:|---:|
+| 1 | 57.2 | 39.1 | 39.5 | 1.46x |
+| 8 | 59.8 | 47.5 | 48.5 | 1.26x |
+| 64 | 123.7 | 79.5 | 100.8 | 1.56x |
+| 512 | 253.8 | 314.7 | 478.2 | 0.81x |
+| 4096 | 1699.9 | 2280.1 | 3430.3 | 0.75x |
+
+Split-N wins at every measured M; split-K, with twice the payload, diverges as M grows.
+int4 is untested (no kernel). Next: the Qwen3-8B TP=2 test model, prediction first.
+[S3 report](results/2026-10-27-vast-57952342/s3/S3.md) · [Full data](results/2026-10-27-vast-57952342/s3/matrix.csv).
+
+<!-- S3_RESULTS_END -->
 
 <!-- S4_RESULTS_START -->
 

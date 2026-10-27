@@ -71,7 +71,7 @@ def main():
     commit = meta["git_commit"]["stdout"].strip()
     prediction = json.loads((base / "prediction.json").read_text())
     ranges = prediction["predictions_us_per_call"]
-    assert tuple(ranges) == VARIANTS and tuple(prediction["ms"]) == MS
+    assert tuple(ranges) == VARIANTS and tuple(prediction["layer"]["M"]) == MS
 
     def val(run, m, variant):
         return loaded[run]["rows"][(m, variant)]["us_per_call"]
@@ -252,11 +252,10 @@ collective stays at the same bytes, which can only move the crossover earlier;
 that direction is reasoning, not measurement.
 
 **Gate and decision:** for bf16 at this shape the crossover is measured, not
-assumed. Split-N wins at M=1 ({metrics[1]['split_n_ratio']:.2f}x) and M=64
-({metrics[64]['split_n_ratio']:.2f}x) and loses at M=512
-({metrics[512]['split_n_ratio']:.2f}x) and M=4096
-({metrics[4096]['split_n_ratio']:.2f}x); split-K, with twice the payload, follows the
-same shape lower and loses at M={first_k_loss}. The break-even model explains both
+assumed. Split-N wins at M={', '.join(f"{m} ({metrics[m]['split_n_ratio']:.2f}x)" for m in MS if metrics[m]['split_n_wins'])}
+and loses at M={', '.join(f"{m} ({metrics[m]['split_n_ratio']:.2f}x)" for m in MS if not metrics[m]['split_n_wins'])};
+split-K, with twice the payload, follows the same shape lower and loses at
+M={first_k_loss}. The break-even model explains both
 directions: splitting pays while the layer is weight-read bound, and stops paying
 once compute dominates and the collective payload grows with M. The project's case
 is bs=1, so the relevant cell is M=1, where split-N is
@@ -278,12 +277,17 @@ Next: the Qwen3-8B TP=2 test model at bs=1, prediction first.
 
     log = ROOT / "lab/LOG.md"
     old = log.read_text().rstrip()
-    marker = "## S3 —"
-    head = old.split(marker, 1)[0].rstrip() if marker in old else old
-    later = ""
+    if "## S3 —" in old:
+        before, rest = old.split("## S3 —", 1)
+        nxt = re.search(r"(?m)^## S[0-9]", rest)
+        rest = rest[nxt.start():] if nxt else ""
+        old = (before.rstrip() + "\n\n" + rest).strip() if rest else before.rstrip()
     if "## S4 —" in old:
-        later = "\n\n## S4 —" + old.split("## S4 —", 1)[1]
-    log.write_text(re.sub(r"\n{3,}", "\n\n", head + "\n\n" + body + later))
+        before, after = old.split("## S4 —", 1)
+        text = before.rstrip() + "\n\n" + body + "\n\n## S4 —" + after
+    else:
+        text = old + "\n\n" + body
+    log.write_text(re.sub(r"\n{3,}", "\n\n", text).rstrip("\n") + "\n")
 
     index = ["S3 linear-layer splits measured on 2026-10-27, same 2 x RTX 5090 box.",
              f"Code `{commit[:7]}`. bf16, N=8704, K=5120, seven samples; max rank per sample.", "",
@@ -301,8 +305,8 @@ Next: the Qwen3-8B TP=2 test model at bs=1, prediction first.
         before, rest = text.split(start, 1)
         _, after = rest.split(end, 1)
         text = before + block + after
-    elif "<!-- S4_RESULTS_END -->" in text:
-        text = text.replace("<!-- S4_RESULTS_END -->", "<!-- S4_RESULTS_END -->\n\n" + block, 1)
+    elif "<!-- S4_RESULTS_START -->" in text:
+        text = text.replace("<!-- S4_RESULTS_START -->", block + "\n\n<!-- S4_RESULTS_START -->", 1)
     elif "<!-- S2_SYNC_RESULTS_END -->" in text:
         text = text.replace("<!-- S2_SYNC_RESULTS_END -->", "<!-- S2_SYNC_RESULTS_END -->\n\n" + block, 1)
     else:

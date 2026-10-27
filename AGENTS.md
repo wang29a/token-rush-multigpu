@@ -21,6 +21,12 @@ waits - not transport: a dependent chain with a per-step consumer costs about
 10.2 us at 10 KiB and is flat in depth. S2's stop decision is therefore
 withdrawn; its raw numbers stand.
 
+An S3 split sweep on one 8704x5120 bf16 layer measured the crossover: split-N
+is about 1.5x the single-card layer at M=1 and still wins at M=64, but loses at
+M=512 and M=4096; split-K, with twice the payload, diverges lower. TP therefore
+pays at bs=1 and stops paying at large batch, so S7's batch cells must not reuse
+those timings as if they were bs=1. int4 is untested (no int4 kernel installed).
+
 An S4 capture probe then measured 64-layer chains at the production shard shape
 and a toy shape. Capture, exact correctness and additivity hold: the shard chain
 equals compute plus communication within about 2%, its 64-layer communication

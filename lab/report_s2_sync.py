@@ -403,8 +403,11 @@ both runs produce identical capture structure.
     marker = "## S2-sync —"
     head = old.split(marker, 1)[0].rstrip() if marker in old else old
     later = ""
-    if "## S4 —" in old:
-        later = "\n\n## S4 —" + old.split("## S4 —", 1)[1]
+    if marker in old:
+        rest = old.split(marker, 1)[1]
+        nxt = re.search(r"(?m)^## S[0-9]", rest)
+        if nxt:
+            later = "\n\n" + rest[nxt.start():]
     log.write_text(_final(re.sub(r"\n{3,}", "\n\n", head + "\n\n" + body + later)))
 
     index = ["S2-sync cause probe measured on 2026-10-27, same 2 x RTX 5090 box.",

@@ -8,7 +8,10 @@ the earlier 128-operation miss was a capture-time artifact. The 64-layer shard
 chain captures in one graph per card, is bit-exact, and equals compute plus
 communication within about 2%, with an 11-12% communication share. M0's kill
 criteria are not triggered, but M0 is not cleared: the chain is bf16, not the
-production int4 kernel, and the fixed term is estimated.
+production int4 kernel, and the fixed term is estimated. An S3 split sweep puts
+the bs=1 case on the winning side of the break-even: split-N is about 1.5x one
+layer at M=1 and loses above M=64, so the batch cells of S7 must not reuse
+large-M timings.
 The
 single-card engine is closed (phases 0–5, `docs/progress.md` step 35). This is
 the plan for testing the same thesis one level up, and it is written to be
