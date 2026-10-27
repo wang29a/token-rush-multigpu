@@ -1,0 +1,52 @@
+{
+  "image": {
+    "repo": "https://github.com/vast-ai/base-image",
+    "readme": "https://github.com/vast-ai/base-image#readme",
+    "note": "Open-source Vast image. Read this image's README at the source above, and every /etc/vast_agents/*.md, to see exactly what it adds and preinstalls."
+  },
+  "hardware": {
+    "gpu": {
+      "summary": "2\u00d7 NVIDIA GeForce RTX 5090",
+      "render": {
+        "gl": true,
+        "optix": true,
+        "vulkan": true
+      },
+      "cuda": {
+        "driver_version": "570.195.03",
+        "components": {
+          "nvcc": true,
+          "dev_headers": true,
+          "cudart": true,
+          "nvrtc": true,
+          "cublas": true,
+          "cudnn": true,
+          "cufft": true,
+          "cusparse": true,
+          "cusolver": true,
+          "curand": true,
+          "nccl": true,
+          "npp": true,
+          "nvjpeg": true
+        },
+        "installed_version": "13.3",
+        "cuda_home": "/usr/local/cuda",
+        "forward_compat": {
+          "available": true,
+          "enabled": true,
+          "path": "/usr/local/cuda/compat",
+          "compat_driver_version": "610.57.04",
+          "host_driver_version": "570.195.03",
+          "note": "CUDA forward-compatibility libs. They let a NEWER CUDA MAJOR version run on an OLDER host driver, on datacenter (Volta+) GPUs only. This image auto-enables them at boot (via ldconfig) when needed and leaves them off otherwise \u2014 `enabled` is the current state. You normally never toggle this by hand; do NOT force them on when the host driver is new enough (set DISABLE_FORWARD_COMPAT=true at launch to opt out). For same-major mismatches (e.g. CUDA 12.x app on a 12.y driver) no compat libs are needed at all \u2014 see minor-version compatibility in the cuda note."
+        },
+        "driver_max_cuda": "13.3",
+        "compute_capability": "12.0",
+        "min_cuda_for_wheels": "12.8",
+        "note": "CUDA compute works via the host-injected driver. A PARTIAL CUDA 13.3 install is present (components: nvcc, dev_headers, cudart, nvrtc, cublas, cudnn, cufft, cusparse, cusolver, curand, nccl, npp, nvjpeg); this is NOT a full toolkit, so check the `components` map before assuming a library exists \u2014 missing ones (e.g. cuBLAS/cuDNN) must be added from the configured nvidia apt repo (cuda-<lib>-X-Y / libcudnn*) or come bundled with framework wheels. COMPATIBILITY (agents get this wrong): the toolkit/wheel does NOT need to match the driver's exact CUDA version. CUDA minor-version compatibility means any CUDA 12.x build runs on any driver that supports CUDA 12.0+ (and 13.x on a 13.0+ driver) \u2014 so a 12.x wheel is fine here as long as driver_max_cuda is >= 12.0; do NOT 'upgrade the driver to match CUDA'. CAVEAT: this excludes PTX JIT \u2014 code shipped as PTX from a toolkit NEWER than the host driver fails with CUDA_ERROR_UNSUPPORTED_PTX_VERSION (222) since the driver owns the JIT (only bites when the host driver is older than the build; use native-cubin builds or forward compat). Forward compatibility (running a newer CUDA MAJOR on an older driver) is the separate cuda-compat mechanism, auto-managed at boot (see forward_compat). What DOES bind is the GPU architecture: compute_capability >= 10.0 (Blackwell) needs CUDA >= 12.8 wheels \u2014 an older build (e.g. torch cu124) installs cleanly but fails at runtime with 'no kernel image is available'. When installing CUDA libs: NEVER install the NVIDIA driver from apt (it must match the host \u2014 avoid the 'cuda' metapackage and nvidia-driver-*/libcuda* packages); install only components <= driver_max_cuda, and prefer framework wheels that bundle their own CUDA runtime. See AGENTS.md."
+      }
+    }
+  },
+  "workspace_is_volume": false,
+  "box": "vast-57952342",
+  "hostname": "42d6ba11f3c3"
+}

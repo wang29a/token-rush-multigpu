@@ -1,0 +1,42 @@
+{
+  "written_at_utc": "2026-10-27T11:16:00.457506+00:00",
+  "stage": "S1",
+  "basis": "docs/multigpu-lab.md S1 and HANDOFF.md; estimates, not measurements",
+  "latency_us_estimate": [
+    5,
+    10
+  ],
+  "bandwidth_decimal_GBs_estimate": [
+    25,
+    50
+  ],
+  "crossover_bytes_estimate": 262144,
+  "s1_gate_us": 15,
+  "bad_box_us": 20,
+  "m0_gate_us": 12,
+  "definitions": "10 KB = 10240 bytes. Report one-way copy time and dependent round-trip separately; half round-trip is a proxy, not measured all-reduce L. Graph failures and unavailable P2P remain results. No M0 clearance from S1.",
+  "hardware_known_before_run": "2x RTX 5090, PCIe Gen5 x16 both; NODE topology; nvidia-smi P2P read CNS; PyTorch not yet installed",
+  "conditioned_expectation": "P2P-enabled variant may be unavailable. Host-staged copy/graph capture may miss original estimates; do not change those estimates after running.",
+  "parameters": {
+    "sizes_bytes": [
+      64,
+      256,
+      1024,
+      4096,
+      8192,
+      10240,
+      16384,
+      65536,
+      262144,
+      1048576,
+      4194304,
+      16777216,
+      67108864,
+      268435456
+    ],
+    "samples": 7,
+    "warmup": 10,
+    "graph_unroll_small": 100,
+    "graph_unroll_large": 4
+  }
+}
