@@ -170,7 +170,7 @@ def main():
                      "reversed_order": r == "run5"} for r in RUNS},
         "depth128_us": d128,
         "depth_scaling_10KiB_us": depth_scale,
-        "graph_structure": struct,
+        "graph_structure": dict(sorted(struct.items())),
         "depth128_growth_vs_depth1": growth,
         "repeat_max_difference_percent": repeat_gap,
         "components_us": {"same_stream_communication": comm, "wait_tail_communication": tail,

@@ -161,24 +161,14 @@
     }
   },
   "graph_structure": {
-    "wait_each": {
-      "nodes": 258,
-      "edges": 8384,
-      "distinct_events": 1
-    },
-    "wait_tail": {
-      "nodes": 258,
-      "edges": 383,
-      "distinct_events": 1
+    "local_consumer": {
+      "nodes": 129,
+      "edges": 127,
+      "distinct_events": 0
     },
     "same_stream": {
       "nodes": 258,
       "edges": 383,
-      "distinct_events": 1
-    },
-    "wait_each_consumer": {
-      "nodes": 386,
-      "edges": 765,
       "distinct_events": 1
     },
     "same_stream_consumer": {
@@ -186,10 +176,20 @@
       "edges": 511,
       "distinct_events": 1
     },
-    "local_consumer": {
-      "nodes": 129,
-      "edges": 127,
-      "distinct_events": 0
+    "wait_each": {
+      "nodes": 258,
+      "edges": 8384,
+      "distinct_events": 1
+    },
+    "wait_each_consumer": {
+      "nodes": 386,
+      "edges": 765,
+      "distinct_events": 1
+    },
+    "wait_tail": {
+      "nodes": 258,
+      "edges": 383,
+      "distinct_events": 1
     }
   },
   "depth128_growth_vs_depth1": {
