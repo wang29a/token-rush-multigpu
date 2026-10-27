@@ -805,3 +805,14 @@ fails to reach 1.4x, the fallback is Mode B, not more cards.
 per cell, `status.jsonl` records clean exit, and the generator checks code
 hashes against the recorded commit, sample counts, medians, exact-correctness
 flags, and the prediction ranges read from `prediction.json`.
+
+
+## S6 — Qwen3-8B TP=1 vs TP=2 (2026-10-27, vast-57952342)
+
+**Question:** what is the measured greedy-decode speedup of Qwen3-8B at bs=1 on two 5090s, with one graph per card?
+
+**Prediction (written before the run):** TP=1 85-110 tok/s, TP=2 130-160 tok/s, speedup 1.35-1.55, TP=2 6.2-7.7 ms/token, communication share 7-12%, TP=1 and TP=2 greedy tokens identical for at least 32 steps and first-step logits within bf16 tolerance. Preserved in `results/2026-10-27-vast-57952342/s6/prediction.json`.
+
+**Measured / bottleneck / prediction vs result:** Pending.
+
+**Next step:** one TP=1 and one TP=2 run, then compare tokens, logits and tok/s. A wrong engine is a failed run, not a speed result.

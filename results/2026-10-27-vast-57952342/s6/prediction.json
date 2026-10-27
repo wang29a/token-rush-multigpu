@@ -1,0 +1,51 @@
+{
+  "written_at_utc": "2026-10-27T12:36:04.970774+00:00",
+  "stage": "S6 Qwen3-8B greedy decode, TP=1 vs TP=2",
+  "basis": "S4 measured 73.8 us/layer for a 8704x5120 bf16 GEMV plus a 10 KiB all-reduce; S1 measured 44.3 GB/s cross-card and S2-sync 8.3-8.7 us per 10 KiB collective. Per-token weight traffic here is about 8.2 GB per card at TP=2 and 16.4 GB at TP=1. These are ESTIMATES from those components, not measurements of this model.",
+  "model": {
+    "name": "Qwen/Qwen3-8B",
+    "hidden": 4096,
+    "layers": 36,
+    "heads": 32,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "intermediate": 12288,
+    "vocab": 151936,
+    "dtype": "bfloat16",
+    "weights_gib": 16.4
+  },
+  "prompt": "The capital of France is",
+  "tokens": 96,
+  "warmup": 8,
+  "max_len": 256,
+  "predictions": {
+    "tp1_tokens_per_second": [
+      85,
+      110
+    ],
+    "tp2_tokens_per_second": [
+      130,
+      160
+    ],
+    "speedup": [
+      1.35,
+      1.55
+    ],
+    "tp2_ms_per_token": [
+      6.2,
+      7.7
+    ],
+    "tp2_first_logits_max_abs_diff_vs_tp1": [
+      0,
+      0.5
+    ],
+    "greedy_agreement_tokens": 32,
+    "communication_share_percent": [
+      7,
+      12
+    ]
+  },
+  "correctness": "Greedy tokens from TP=1 and TP=2 must agree for at least the first 32 decode steps, and the first-step logits must agree within bf16 tolerance; a mismatch above the tolerance is a failed engine, not a performance result. An independent CPU reference from Hugging Face transformers is generated once and compared to TP=1.",
+  "scope": "One prompt, greedy decode, bs=1, one graph per card, native same-stream NCCL for the two per-layer all-reduces. Not a serving engine: no paged KV, no batch, no sampling, no prefill optimization. Weights are bf16, so this is not the 27B int4 projection.",
+  "decision_rule": "TP2 >= 1.4x TP1 on this box and day is S6's pass criterion. Below 1.35x, inspect the fixed tax before any further stage; between 1.35x and 1.4x, report the number and do not round up."
+}
