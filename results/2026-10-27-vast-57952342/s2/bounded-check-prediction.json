@@ -1,0 +1,46 @@
+{
+  "written_at_utc": "2026-10-27T11:36:39.527380+00:00",
+  "reason": "Default graph1 10 KiB 9.391 us, graph128 normalized 14.309 us: ~52% difference, refuting <=25% prediction. Need repeat plus one bounded algorithm/protocol comparison before deciding.",
+  "predictions": {
+    "default_repeat_graph128_10KiB_us": [
+      11.45,
+      17.17
+    ],
+    "ring_ll_graph128_10KiB_us": [
+      8,
+      15
+    ],
+    "tree_ll_graph128_10KiB_us": [
+      8,
+      15
+    ],
+    "ring_simple_graph128_10KiB_us": [
+      15,
+      30
+    ]
+  },
+  "parameters": {
+    "sizes_bytes": [
+      10240,
+      81920
+    ],
+    "collectives": [
+      "all_reduce"
+    ],
+    "modes": [
+      "eager",
+      "graph1",
+      "graph128"
+    ],
+    "samples": 9,
+    "warmup": 20,
+    "profiles": [
+      "default",
+      "ring-ll",
+      "tree-ll",
+      "ring-simple"
+    ]
+  },
+  "selection_rule": "Report every profile, prioritize dependent-chain max-rank medians, never select graph1 alone. If any profile meets <=12 us, independently repeat the candidate with smallest worst-case max-rank per-sample value at 10 KiB before accepting its component gate. No more tuning after this bounded set.",
+  "scope": "Diagnostic overrides exist only in worker subprocess environments; do not persist NCCL tuning. No forced LL128."
+}
