@@ -653,3 +653,14 @@ fails to reach 1.4x, the fallback is Mode B, not more cards.
 per cell, `status.jsonl` records clean exit, and the generator checks code
 hashes against the recorded commit, sample counts, medians, exact-correctness
 flags, and the prediction ranges read from `prediction.json`.
+
+
+## S3 — one linear layer, four splits (2026-10-27, vast-57952342)
+
+**Question:** At which M does splitting one 8704x5120 bf16 layer across two cards stop paying, and does split-N beat split-K?
+
+**Prediction (written before the run):** at M=1, single 55-75 us, split-N and split-K 28-40 us each; single-card split-K 55-75. split-N stays at or below single through M=4096; split-K loses first at M=512-4096 as its payload doubles. int4 is not tested (no kernel). Preserved in `results/2026-10-27-vast-57952342/s3/prediction.json`.
+
+**Measured / bottleneck / prediction vs result:** Pending.
+
+**Next step:** two runs; report every cell, then decide whether the TP premise holds at this shape before any model work.

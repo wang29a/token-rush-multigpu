@@ -1,0 +1,123 @@
+{
+  "written_at_utc": "2026-10-27T12:20:23.227096+00:00",
+  "stage": "S3 one linear layer, four splits",
+  "basis": "S1 measured 44.3 GB/s cross-card copy; S4 measured 63.9 us/layer for the same 8704x5120 bf16 GEMV and 8.3-8.7 us for a 10 KiB all-reduce. Predictions below are ESTIMATES from those components, not from this run.",
+  "question": "At which batch size does splitting one [N,K] layer across two cards stop paying, and does split-N beat split-K?",
+  "layer": {
+    "M": [
+      1,
+      8,
+      64,
+      512,
+      4096
+    ],
+    "N": 8704,
+    "K": 5120,
+    "dtype": "bfloat16",
+    "weight_bytes_per_card": 89128960
+  },
+  "variants": {
+    "single": "one card, full [M,K]x[K,N], no collective",
+    "split_n": "each card half of N (4352), then SUM all-reduce of its [M,4352] output; combine is concatenation, so the collective is timed but its arithmetic is unused; correctness compares each slice",
+    "split_k": "each card half of K (2560, contiguous copy), full [M,N] partial, SUM all-reduce gives the exact result",
+    "single_split_k": "one card computes both K halves locally and adds them: split cost without a collective"
+  },
+  "predictions_us_per_call": {
+    "single": {
+      "1": [
+        55,
+        75
+      ],
+      "8": [
+        55,
+        80
+      ],
+      "64": [
+        70,
+        120
+      ],
+      "512": [
+        350,
+        600
+      ],
+      "4096": [
+        3000,
+        4500
+      ]
+    },
+    "split_n": {
+      "1": [
+        28,
+        40
+      ],
+      "8": [
+        30,
+        45
+      ],
+      "64": [
+        40,
+        70
+      ],
+      "512": [
+        280,
+        450
+      ],
+      "4096": [
+        2200,
+        3500
+      ]
+    },
+    "split_k": {
+      "1": [
+        28,
+        40
+      ],
+      "8": [
+        32,
+        50
+      ],
+      "64": [
+        50,
+        90
+      ],
+      "512": [
+        350,
+        600
+      ],
+      "4096": [
+        3000,
+        5000
+      ]
+    },
+    "single_split_k": {
+      "1": [
+        55,
+        75
+      ],
+      "8": [
+        55,
+        80
+      ],
+      "64": [
+        75,
+        125
+      ],
+      "512": [
+        360,
+        620
+      ],
+      "4096": [
+        3000,
+        4500
+      ]
+    }
+  },
+  "payload_bytes": {
+    "split_n": "M*4352*2",
+    "split_k": "M*8704*2"
+  },
+  "crossover_prediction": "split-N stays at or below single-card through M=4096, because its payload grows at the same M rate as the compute it replaces; split-K loses once its doubled payload (M*8704*2) stops being negligible, expected first at M=512-4096.",
+  "quantization": "int4 is NOT tested: no int4 GEMV kernel is installed, and emulating it would measure a different kernel. The manual's claim that int4 loses sooner stays untested and is recorded as such.",
+  "decision_rule": "Split wins when measured split <= single. Report every cell; do not select the best batch. If split-N does not win at M=1, the TP premise fails at this shape and S6 must be re-argued before any model work.",
+  "correctness": "single is the reference. split_n compares each card's half against the reference slice; split_k compares the summed partials. BF16 tolerance: exact slices are not required, max abs difference and allclose(rtol=1e-2,atol=1e-2) are recorded. The split_k contiguous copies are laid out per card so both splits read contiguous bytes."
+}
