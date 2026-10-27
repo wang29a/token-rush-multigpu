@@ -1,0 +1,9 @@
+{
+  "written_at_utc": "2026-10-27T11:57:24.348354+00:00",
+  "diagnostic_run": "run1",
+  "observed": "debug-mode captures have valid rows but communicator destruction hangs; debug_dump writes no DOT. First variant timed out; second was stopped with parent.",
+  "cause": "PyTorch v2.11 CUDAGraph::capture_end with keep_graph=false and debug=true skips raw graph destruction but sets has_graph_=false; reset no longer destroys that raw graph. NCCL user objects remain live.",
+  "source": "https://raw.githubusercontent.com/pytorch/pytorch/v2.11.0/aten/src/ATen/cuda/CUDAGraph.cpp",
+  "fix": "Do not enable global debug mode. Use CUDAGraph(keep_graph=True), explicit instantiate, built-in debug_dump and reset, so ownership is explicit.",
+  "prediction": "run2 and reverse-order run3 both produce DOT graphs and exit normally for all variants; original timing predictions unchanged. Exclude incomplete debug-leak run1 from conclusions."
+}

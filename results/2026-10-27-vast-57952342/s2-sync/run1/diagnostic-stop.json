@@ -1,0 +1,10 @@
+{
+  "at_utc": "2026-10-27T11:57:04.118571+00:00",
+  "reason": "Debug-mode graph capture wrote correct timing rows but stalled communicator teardown and emitted no DOT file; stop diagnostic before rerunning without debug-mode retention. This is not a successful run.",
+  "parents": [
+    10297
+  ],
+  "workers": [
+    10451
+  ]
+}

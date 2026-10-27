@@ -88,9 +88,13 @@ def worker(rank,args,uid):
             torch.cuda.synchronize()
             dist.barrier()
             torch.cuda.synchronize()
-            graph=torch.cuda.CUDAGraph()
-            graph.enable_debug_mode()
+            # Keep the raw graph explicitly owned until reset. In this
+            # PyTorch build global debug mode with keep_graph=False retains
+            # a raw graph while marking has_graph_=false, leaking NCCL graph
+            # user objects and stalling communicator destruction.
+            graph=torch.cuda.CUDAGraph(keep_graph=True)
             with torch.cuda.graph(graph,stream=stream):chain()
+            graph.instantiate()
             if size==10240 and depth==128 and rank==0:
                 graph.debug_dump(str(out/"graph-10KiB-128.dot"))
             for _ in range(args.warmup):graph.replay()
