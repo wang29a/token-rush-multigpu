@@ -1,0 +1,10 @@
+{
+  "written_at_utc": "2026-10-27T11:20:05.239083+00:00",
+  "observed_runs": [
+    "run1",
+    "run2"
+  ],
+  "cause_hypothesis": "bound graph.replay method retains CUDAGraph executable/user objects across dist.destroy_process_group",
+  "prediction": "Deleting the replay bound method and resetting graph before communicator destruction yields exit status 0 for graph broadcast. Original timing estimates unchanged.",
+  "diagnostics": "run1 and run2 overlap while graph NCCL teardown is stalled; do not select their numbers for the final report. Run the full sweep serially after all processes exit."
+}

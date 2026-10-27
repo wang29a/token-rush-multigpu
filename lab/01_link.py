@@ -138,6 +138,9 @@ def copy_worker(args):
                     "effective_GBs": size * hops / row["gpu_us_median"] / 1000})
         append(out / "rows.jsonl", row)
         print(json.dumps(row), flush=True)
+        del measured_op
+        if graph is not None:
+            graph.reset()
         del graph, a, b
 
 
@@ -213,6 +216,12 @@ def nccl_worker(rank, args):
             append(out / f"rank{rank}.jsonl", row)
             if rank == 0:
                 print(json.dumps(row), flush=True)
+            # A bound graph.replay method owns the graph too. Destroy graph
+            # executables before ncclCommDestroy, or its graph user objects
+            # can keep communicator destruction waiting indefinitely.
+            del measured_op
+            if graph is not None:
+                graph.reset()
             del graph, t
     dist.destroy_process_group()
 
