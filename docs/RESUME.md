@@ -31,8 +31,10 @@ no prior conversation.
 
 ## Rebuild on a new box
 
+The repository is public, so a fresh instance can clone it with no credentials:
+
 ```bash
-git clone git@github.com:wang29a/token-rush-multigpu.git
+git clone https://github.com/wang29a/token-rush-multigpu.git
 cd token-rush-multigpu
 uv venv .venv --python /venv/main/bin/python
 uv pip install --python .venv/bin/python torch==2.11.0 numpy \
@@ -61,6 +63,12 @@ PY
 `/tmp` is cleared on restart, so weights are re-downloaded per instance
 (~16.4 GB). Keep them out of git.
 
+Pushing needs write credentials. The deploy key that pushed here lives on this
+instance and dies with it: on the new box generate a new key and add it under
+Settings -> Deploy keys with write access, or connect the GitHub plugin first.
+Until then, treat the clone as read-only and keep work committed locally in a
+bundle.
+
 ## Check that the state came back
 
 ```bash
@@ -75,7 +83,9 @@ ls results/2026-10-27-vast-57952342/{s1,s2,s3,s4,s6}
 ```
 
 The generators are order-independent and deterministic; if the files change,
-something in the environment differs from the recorded one.
+something in the environment differs from the recorded one. This drill was run
+on 2026-10-27: a fresh clone of `main` regenerated all six reports and both
+summary files with an empty `git status`.
 
 ## What to do first on resume
 
