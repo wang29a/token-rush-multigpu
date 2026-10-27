@@ -92,7 +92,8 @@ This is an interruptible/spot instance; `/workspace` is **not** a persistent
 volume. At checkpoints, commit and push code, pre-run predictions, raw
 artifacts and the generated report. Verify local HEAD against the remote.
 Keep weights, caches, virtual environments, credentials and rendezvous files
-out of Git. If authentication blocks push, say so explicitly and produce a
+out of Git. `docs/RESUME.md` has the exact rebuild recipe for a fresh instance,
+what survives stop versus destroy, and where the chat session store lives. If authentication blocks push, say so explicitly and produce a
 Git bundle; a local commit/bundle alone is not an off-instance backup.
 
 Direct SSH push now works with a repository-scoped deploy key configured in
