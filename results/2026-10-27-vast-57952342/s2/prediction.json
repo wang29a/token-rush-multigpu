@@ -1,0 +1,63 @@
+{
+  "written_at_utc": "2026-10-27T11:32:06.707690+00:00",
+  "stage": "S2 NCCL baseline; two GPUs only",
+  "basis": "S1 measured graph broadcast 10.84\u201310.85 us, P2P false, SHM transport; ranges below are ESTIMATES, not extrapolated model measurements.",
+  "prediction": {
+    "graph_allreduce_10KiB_us": [
+      12,
+      25
+    ],
+    "eager_allreduce_10KiB_us": [
+      16,
+      35
+    ],
+    "graph_allreduce_80KiB_us": [
+      15,
+      35
+    ],
+    "graph_128_allreduce_10KiB_ms": [
+      1.536,
+      3.2
+    ],
+    "graph_128_allreduce_80KiB_ms": [
+      1.92,
+      4.48
+    ],
+    "graph_vs_eager_10KiB_reduction_percent": [
+      10,
+      40
+    ],
+    "normalized_chain_vs_single_deviation_percent_max": 25,
+    "64MiB_effective_algorithmic_GBs": [
+      15,
+      45
+    ]
+  },
+  "expected_gate": "NCCL default may miss M0 L<=12 us. Record failure; do one bounded cause/configuration check if needed, then stop/decide. M0 also needs a synthetic chain; passing primitive alone does not clear it.",
+  "parameters": {
+    "dtype": "bfloat16",
+    "sizes_bytes": [
+      10240,
+      81920,
+      1048576,
+      67108864
+    ],
+    "collectives": [
+      "all_reduce SUM",
+      "all_gather_into_tensor",
+      "reduce_scatter_tensor SUM",
+      "broadcast src=0,1"
+    ],
+    "modes": [
+      "eager",
+      "graph-unroll1",
+      "graph-unroll128 for small allreduce only"
+    ],
+    "warmup": 20,
+    "samples": 9,
+    "small_repetitions": 100,
+    "large_repetitions": 10
+  },
+  "correctness": "Rank-distinct, nonuniform exact BF16 patterns validate the whole output before/after timing. In-place repeated SUM timings use zeros to avoid overflow. For graph128 a single post-timing replay uses rank patterns scaled by 2^-120, whose exact expected final value is pattern*384; no infinities accepted.",
+  "one_shot": "Unavailable as planned: runtime peer access false. Do not dereference peer pointers, patch drivers, or pretend NCCL-vs-NCCL is a hand-written one-shot comparison. No full S2 pass can be claimed without that comparison."
+}

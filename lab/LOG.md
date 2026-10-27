@@ -169,3 +169,16 @@ streams](https://docs.pytorch.org/docs/2.11/notes/cuda.html), [CUDA graph
 stream capture](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/cuda-graphs.html),
 [NCCL graph capture](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/cudagraph.html).
 The script uses PyTorch operations and no architecture-specific kernel.
+
+
+## S2 — NCCL collective baseline (2026-10-27, vast-57952342)
+
+**Question:** What does the actual SUM all-reduce cost on the P2P-disabled box?
+
+**Prediction (written before the run):** graph 10 KiB all-reduce 12–25 us, eager 16–35 us; graph 80 KiB 15–35 us; 128 graph all-reduces 1.536–3.200 ms (10 KiB), 1.920–4.480 ms (80 KiB). Graph improves 10 KiB by 10–40%; normalized chain differs by <=25% from graph single. 64 MiB effective algorithmic bandwidth 15–45 GB/s. Estimates based on S1, not measurements.
+
+**Prediction artifact:** `results/2026-10-27-vast-57952342/s2/prediction.json`.
+
+**What was done / measured / bottleneck / prediction vs result:** Pending.
+
+**Next step:** Evaluate the actual all-reduce gate, preserve misses. A passing primitive alone cannot clear M0. P2P one-shot variant unavailable; no model work yet.
