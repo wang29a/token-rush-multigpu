@@ -13,8 +13,8 @@ NCCL path" decision: the 128-operation chain miss came from capture-time graph
 structure, not transport. S4 then captured 64-layer chains in one graph per
 card: exact correctness, additivity within about 2%, 64-layer communication
 share about 11-12%, and M0's kill criteria not triggered - but M0 is not
-cleared because the chain is bf16 rather than the production int4 kernel. No
-model has been run.
+cleared because the chain is bf16 rather than the production int4 kernel. The
+Qwen3-8B test model was run in S6; the production 27B model has not been run.
 
 ## Settled decisions (not open for discussion)
 
@@ -41,24 +41,45 @@ not used. Exact numbers are generated in the log, never retyped.
 - Measured decode, 96 greedy tokens after 8 warmup: TP=1 80.3 tok/s
   (12.45 ms/token, 15.3 GiB), TP=2 117.6 tok/s (8.50 ms/token, 8.2 GiB/card),
   so **1.46x**. The speed criterion (>= 1.4x) is met.
-- Correctness is not. First-step logits agree with an independent Hugging Face
-  CPU forward to 0.23 (TP=1) and 0.19 (TP=2), same argmax, but TP=2's greedy
-  text leaves TP=1 at token 4 and degenerates into a repetition loop. Repeating
-  the collectives in fp32 changes nothing (114.5 tok/s, identical tokens), so
-  the cause is bf16 partial-sum rounding in the sharded GEMMs, not the
-  all-reduce and not a sharding error.
+- Correctness is not established. First-step logits are close to the independent
+  Hugging Face CPU forward, with the same argmax, but the saved TP=2 output
+  diverges from TP=1 and loops. FP32 collectives produce the same saved tokens.
+  This does not establish sharded-GEMM rounding as the cause or rule out later
+  cache, position, attention, or execution errors. Treat the attribution in the
+  original generated S6 report as a hypothesis, not a verified conclusion.
+- The reported divergence index is an index into a discontinuous saved array:
+  `benchmark()` advances generation for eight warmup steps without saving
+  those tokens, then concatenates the initial prediction and timed outputs.
+  Do not describe array index 4 as the true first divergent decode step.
 - The 1.46x here is a test-model number and does not transfer to 27B. It is also
   not the 1.45x component projection; the agreement is coincidence.
 - 26.8% of the TP=2 step does not shard (8.50 ms vs half of 12.45 ms). At the
   measured 10 KiB collective cost, 72 collectives would be about 0.6 ms, so most
   of that remainder is half-width GEMM efficiency, not measured communication.
 
-**Decision:** do not start M1 on this engine. Implement one precision change -
-keep the residual stream in fp32 and cast only at GEMM inputs - then re-run this
-exact TP=1/TP=2 comparison. If the text still diverges, use fp32 master weights
-or a different reduction strategy. Only a TP=2 run whose greedy text tracks
-TP=1 earns the model-level claim; until then the project has a latency number
-and no equivalence result.
+**Decision:** do not start M1 on this engine. On resume, first record a new
+numeric prediction and repair the diagnostic recording: preserve every token
+through warmup or reset state after warmup; evaluate a contiguous matching
+prefix rather than total matching token count (`report_s6.py` currently uses
+the latter). Compare TP=1, TP=2 and HF on the same forced token sequence,
+step by step, including the KV/position update, to locate the first actual
+logit divergence. Check finiteness from computed tensors rather than trusting
+the hardcoded row flag. Only then choose a controlled precision change such
+as an FP32 residual stream. The unchanged saved tokens after FP32 all-reduce
+are evidence for that specific variant, not proof of the underlying cause.
+
+## Stop checkpoint (2026-10-27)
+
+This handoff includes the read-only review of the S6 artifacts. No engine or
+benchmark was changed during stop preparation. The original raw logs and
+reports remain intact; the qualifications above supersede their stronger
+cause/divergence claims. DSH's latest recorded turn is complete, with no open
+step or pending tool calls. Code, pre-run predictions and raw artifacts through
+S6 are committed and pushed. Verify the current HEAD against remote `main`
+before stopping, as specified below. On resume, start with S6 correctness,
+not a new speed claim or another model stage. Weights, virtual environment
+and the SSH private key are excluded from Git and may need recreation on a
+replacement instance; the experiment artifacts are in the remote repository.
 
 S1's original gate ambiguity remains documented in `S1.md`: one-message vs
 full roundtrip against the same 15 us number. `run3`/`run4` are its primary and

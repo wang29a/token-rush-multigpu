@@ -36,12 +36,15 @@ criteria are not triggered, but **M0 is not cleared**: the chain used bf16
 weights rather than the production int4 kernel, and the 1.56 ms fixed term
 remains an estimate.
 
-S6 then ran Qwen3-8B itself: TP=1 80.3 tok/s, TP=2 117.6 tok/s (1.46x), one
-graph per card, logits within 0.24/0.19 of a Hugging Face CPU forward. The speed
-bar is met, but **S6 is not passed**: TP=2's greedy text leaves TP=1 at token 4
-and loops, and fp32 collectives change nothing, so the cause is bf16
-sharded-GEMM rounding rather than a structural error. M1 is blocked until the
-text matches; the next step is an fp32 residual stream. No 1.5x claim is made.
+S6 ran Qwen3-8B itself and recorded a same-box speed ratio, but **S6 is not
+passed**: saved TP=2 output differs from TP=1 and loops. FP32 collectives do
+not change those saved tokens. The cause is not established: one HF prompt
+forward does not rule out errors during later decode steps. Warmup tokens are
+omitted from the saved output, so its divergence index is not a true decode
+step. Before more precision tuning, fix token recording and the contiguous
+prefix gate, then compare TP=1/TP=2/HF logits on a common forced sequence.
+See the stop checkpoint and diagnostic qualifications in `HANDOFF.md`.
+M1 remains blocked by unresolved correctness; no production speed claim.
 Computed outcomes remain `projected`, unmeasured inputs `estimate`; `measured`
 is reserved for recorded runs with raw artifacts. Measurements enter only
 through `lab/LOG.md` and `results/<date>-<box>/`.
